@@ -9,7 +9,6 @@ namespace ClinicApp.Services
         public Doctor Save(Doctor doctor);
         public Doctor Update(Doctor doctor);
         public void Delete(int Id);
-
-
+        List<Appointment> GetAllDoctorAppointments(int id);
     }
 }

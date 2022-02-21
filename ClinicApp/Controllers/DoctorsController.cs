@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/doctors")]
     [ApiController]
     public class DoctorsController : ControllerBase
     {
@@ -15,18 +15,23 @@ namespace ClinicApp.Controllers
         {
             this.DoctorService = _DoctorService;
         }
-        // GET: api/<DoctorController>
+        // GET: api/doctors
         [HttpGet]
-        public List<Doctor> Get()
+        public List<Doctor> GetAllDoctors()
         {
             return DoctorService.GetDoctors();
         }
 
-        // GET api/<DoctorController>/5
+        // GET api/doctors/5
         [HttpGet("{id}")]
-        public Doctor Get(int id)
+        public Doctor GetDoctorInfo(int id)
         {
             return DoctorService.GetDoctor(id);
+        }
+        [HttpGet("{id}/appointments")]
+        public List<Appointment> GetDoctorAppointments(int id)
+        {
+            return DoctorService.GetAllDoctorAppointments(id);
         }
 
         // POST api/<DoctorController>

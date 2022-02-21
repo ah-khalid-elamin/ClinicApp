@@ -10,7 +10,7 @@ namespace ClinicApp.Controllers
     {
         // GET: api/<AppointmentController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<string> GetAllAppointments()
         {
             return new string[] { "value1", "value2" };
         }

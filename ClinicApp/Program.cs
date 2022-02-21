@@ -6,12 +6,6 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//patients
-builder.Services.AddDbContext<PatientDBContext>(opt =>
-    opt.UseSqlServer("Data Source=localhost;Initial Catalog=ClinicApp;Trusted_Connection=true"));
-//doctors
-builder.Services.AddDbContext<DoctorDBContext>(opt =>
-    opt.UseSqlServer("Data Source=localhost;Initial Catalog=ClinicApp;Trusted_Connection=true"));
 //appointments
 builder.Services.AddDbContext<ClinicAppDbContext>(opt =>
     opt.UseSqlServer("Data Source=localhost;Initial Catalog=ClinicApp;Trusted_Connection=true"));

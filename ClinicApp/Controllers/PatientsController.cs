@@ -39,9 +39,9 @@ namespace ClinicApp.Controllers
 
         // PUT api/<PatientController>/5
         [HttpPut("{id}")]
-        public void Put(Guid id, [FromBody] Patient patient)
+        public void Put(int id, [FromBody] Patient patient)
         {
-            PatientService.Update(patient);
+            PatientService.Update(id,patient);
         }
 
         // DELETE api/<PatientController>/5

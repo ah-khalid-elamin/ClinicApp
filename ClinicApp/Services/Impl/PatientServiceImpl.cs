@@ -5,37 +5,40 @@ namespace ClinicApp.Services.Impl
 {
     public class PatientServiceImpl : PatientService
     {
-        public PatientDBContext PatientDBContext { get; set; }
+        public ClinicAppDbContext ClinicAppDbContext { get; set; }
 
-        public PatientServiceImpl(PatientDBContext _patientDBContext)
+        public PatientServiceImpl(ClinicAppDbContext clinicAppDbContext)
         {
-            PatientDBContext = _patientDBContext;
+            this.ClinicAppDbContext = clinicAppDbContext;
         }
         public List<Patient> GetPatients()
         {
-            return PatientDBContext.Patients.ToList();
+            return ClinicAppDbContext.Patients.ToList();
         }
         public Patient GetPatient(int Id)
         {
-            return PatientDBContext.Patients.ToList().FirstOrDefault(c => c.Id == Id);
+            return ClinicAppDbContext.Patients.ToList().FirstOrDefault(c => c.Id == Id);
         }
         public Patient Save(Patient patient)
         {
-            PatientDBContext.Patients.Add(patient);
-            PatientDBContext.SaveChanges();
+            ClinicAppDbContext.Patients.Add(patient);
+            ClinicAppDbContext.SaveChanges();
             return patient;
         }
-        public Patient Update(Patient patient)
+        public Patient Update(int id, Patient patient)
         {
-            PatientDBContext.Patients.Update(patient);
-            PatientDBContext.SaveChanges();
+            Patient _existingPatient = GetPatient(id);
+            if (_existingPatient == null) throw new Exception("No Such Patient Exist");
+
+            ClinicAppDbContext.Patients.Update(patient);
+            ClinicAppDbContext.SaveChanges();
             return patient;
         }
         public void Delete(int Id)
         {
             Patient patient = GetPatient(Id);
-            PatientDBContext.Patients.Remove(patient);
-            PatientDBContext.SaveChanges();
+            ClinicAppDbContext.Patients.Remove(patient);
+            ClinicAppDbContext.SaveChanges();
         }
 
     }

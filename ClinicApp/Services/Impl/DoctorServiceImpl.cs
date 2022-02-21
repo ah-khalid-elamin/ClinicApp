@@ -5,37 +5,43 @@ namespace ClinicApp.Services.Impl
 {
     public class DoctorServiceImpl : DoctorService
     {
-        public DoctorDBContext DoctorDBContext { get; set; }
+        public ClinicAppDbContext ClinicAppDbContext { get; set; }
 
-        public DoctorServiceImpl(DoctorDBContext _patientDBContext)
+        public DoctorServiceImpl(ClinicAppDbContext clinicAppDbContext)
         {
-            DoctorDBContext = _patientDBContext;
+            ClinicAppDbContext = clinicAppDbContext;
         }
         public List<Doctor> GetDoctors()
         {
-            return DoctorDBContext.Doctors.ToList();
+            return ClinicAppDbContext.Doctors.ToList();
         }
         public Doctor GetDoctor(int Id)
         {
-            return DoctorDBContext?.Doctors.ToList().FirstOrDefault(c => c.Id == Id);
+            return ClinicAppDbContext?.Doctors.ToList().FirstOrDefault(c => c.Id == Id);
         }
         public Doctor Save(Doctor doctor)
         {
-            DoctorDBContext.Doctors.Add(doctor);
-            DoctorDBContext.SaveChanges();
+            ClinicAppDbContext.Doctors.Add(doctor);
+            ClinicAppDbContext.SaveChanges();
             return doctor;
         }
         public Doctor Update(Doctor doctor)
         {
-            DoctorDBContext.Doctors.Update(doctor);
-            DoctorDBContext.SaveChanges();
+            ClinicAppDbContext.Doctors.Update(doctor);
+            ClinicAppDbContext.SaveChanges();
             return doctor;
         }
         public void Delete(int Id)
         {
             Doctor doctor = GetDoctor(Id);
-            DoctorDBContext.Doctors.Remove(doctor);
-            DoctorDBContext.SaveChanges();
+            ClinicAppDbContext.Doctors.Remove(doctor);
+            ClinicAppDbContext.SaveChanges();
         }
+
+        public List<Appointment> GetAllDoctorAppointments(int id)
+        {
+            return ClinicAppDbContext.Appointments.Where(appointment => appointment.Doctor.Id == id).ToList();
+        }
+
     }
 }
