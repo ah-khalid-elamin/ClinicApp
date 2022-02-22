@@ -26,6 +26,9 @@ namespace ClinicApp.Services.Impl
                 throw new Exception("This is an error with the appointment duarion");
             }
 
+            if(!checkIsAvailableSlot(doctor.Id,StartDate,EndDate))
+                throw new Exception("This Appointment schedule conflict with other appointments");
+
             Appointment appointment = new Appointment()
             {
                 Doctor = doctor,
@@ -84,6 +87,32 @@ namespace ClinicApp.Services.Impl
                 return false;
 
             return true;
+        }
+        private bool checkIsAvailableSlot(int doctorId,DateTime targetStart, DateTime targetEnd)
+        {
+            List<Appointment> appointments = doctorService.GetAllDoctorAppointmentsByDay(doctorId,targetStart);
+
+            //check targetStart is not between other appointments start and end datetime
+            foreach (var appointment in appointments)
+            {
+                if (ExistBetween(appointment.StartDate, appointment.EndDate, targetStart))
+                    return false;
+            }
+            //check targetEnd is not between other appointments start and end datetime
+            foreach (var appointment in appointments)
+            {
+                if (ExistBetween(appointment.StartDate, appointment.EndDate, targetEnd))
+                    return false;
+            }
+
+            return true;
+        }
+        public bool ExistBetween(DateTime start, DateTime End, DateTime target)
+        {
+            if(start.CompareTo(target) >= 0 && End.CompareTo(target) <= 0)
+                return true;
+
+            return false;
         }
     }
 }
