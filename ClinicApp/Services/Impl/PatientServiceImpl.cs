@@ -41,5 +41,10 @@ namespace ClinicApp.Services.Impl
             ClinicAppDbContext.SaveChanges();
         }
 
+        public List<Appointment> GetPatientPreviousAppointments(int patientId)
+        {
+           return ClinicAppDbContext.Appointments.AsEnumerable()
+                .Where(appointment => appointment?.Patient?.Id == patientId).ToList();
+        }
     }
 }

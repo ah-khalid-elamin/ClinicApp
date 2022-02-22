@@ -30,6 +30,12 @@ namespace ClinicApp.Controllers
             return PatientService.GetPatient(id);
         }
 
+        [HttpGet("{id}/previous-appointments")]
+        public List<Appointment> GetPreviousAppointments(int patientId)
+        {
+            return PatientService.GetPatientPreviousAppointments(patientId);
+        }
+
         // POST api/<PatientController>
         [HttpPost]
         public void Post([FromBody] Patient patient)

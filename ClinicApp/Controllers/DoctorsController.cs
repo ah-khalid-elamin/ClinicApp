@@ -1,5 +1,6 @@
 ﻿using ClinicApp.Models;
 using ClinicApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -16,19 +17,30 @@ namespace ClinicApp.Controllers
             this.DoctorService = _DoctorService;
         }
         // GET: api/doctors
+        [Authorize(Roles = "Admin, Doctor, Patient")]
         [HttpGet]
-        public List<Doctor> GetAllDoctors()
+        public List<Doctor> GetDoctors()
         {
             return DoctorService.GetDoctors();
         }
 
         // GET api/doctors/5
         [HttpGet("{id}")]
-        public Doctor GetDoctorInfo(int id)
+        [Authorize(Roles = "Admin, Doctor, Patient")]
+        public Doctor GetDoctor(int id)
         {
             return DoctorService.GetDoctor(id);
         }
-        [HttpGet("{id}/appointments")]
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}/doctors-exceed-six-hours-list")]
+        public List<Doctor> GetDoctorWhoExceedSixHours(DateTime date)
+        {
+            return DoctorService.GetDoctorsWithAppointmentsExceedingSixHoursByDate(date);
+        }
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("{id}/appointments-list")]
         public List<Appointment> GetDoctorAppointments(int id)
         {
             return DoctorService.GetAllDoctorAppointments(id);

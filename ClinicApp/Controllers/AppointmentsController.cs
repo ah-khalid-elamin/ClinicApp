@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClinicApp.Models;
+using ClinicApp.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +11,57 @@ namespace ClinicApp.Controllers
     [ApiController]
     public class AppointmentsController : ControllerBase
     {
+        private readonly AppointmentService appointmentService;
+        public AppointmentsController(AppointmentService _appointmentService) 
+        {
+            this.appointmentService = _appointmentService;
+        }
         // GET: api/<AppointmentController>
         [HttpGet]
-        public IEnumerable<string> GetAllAppointments()
+        public List<Appointment> GetAllAppointments()
         {
-            return new string[] { "value1", "value2" };
+            return appointmentService.GetAllAppointments();
         }
 
         // GET api/<AppointmentController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public Appointment GetAppointmentDetails(int id)
         {
-            return "value";
+            return appointmentService.GetAppointmentDetails(id);
         }
 
         // POST api/<AppointmentController>
+        [Authorize( Roles  = "Patient")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        [Route("book-appointment")]
+        public IActionResult Post([FromBody] Appointment appointment)
         {
+            try
+            {
+                appointmentService.BookAnAppointment(appointment);
+                return Ok(appointment);
+
+            }
+            catch (Exception e)
+            {
+
+                 return BadRequest(e.Message);
+            }        
         }
 
         // PUT api/<AppointmentController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public Appointment Put(int id, [FromBody] Appointment appointment)
         {
+            return appointmentService.UpdateAnAppointment(id, appointment);
         }
 
         // DELETE api/<AppointmentController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [Authorize(Roles = "Admin,Doctor")]
+        [HttpPost("cancel-appointment/{id}")]
+        public void CancelAnAppointment(int id)
         {
+            appointmentService.CancelAppointment(id);
         }
     }
 }
