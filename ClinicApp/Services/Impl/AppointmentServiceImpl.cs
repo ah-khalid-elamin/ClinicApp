@@ -36,6 +36,7 @@ namespace ClinicApp.Services.Impl
                 StartDate = StartDate,
                 EndDate = EndDate
             };
+            
             clinicAppDbContext.Entry(appointment.Doctor).State = EntityState.Unchanged;
             clinicAppDbContext.Entry(appointment.Patient).State = EntityState.Unchanged;
             clinicAppDbContext.Appointments.Add(appointment);
@@ -109,7 +110,7 @@ namespace ClinicApp.Services.Impl
         }
         public bool ExistBetween(DateTime start, DateTime End, DateTime target)
         {
-            if(start.CompareTo(target) >= 0 && End.CompareTo(target) <= 0)
+            if(start.CompareTo(target) <= 0 && End.CompareTo(target) >= 0)
                 return true;
 
             return false;

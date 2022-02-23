@@ -1,5 +1,6 @@
 ﻿using ClinicApp.DbContexts;
 using ClinicApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClinicApp.Services.Impl
 {
@@ -45,7 +46,7 @@ namespace ClinicApp.Services.Impl
 
         public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date)
         {
-            return ClinicAppDbContext.Appointments.AsEnumerable()
+            return ClinicAppDbContext.Appointments.Include(a => a.Doctor).AsNoTracking().AsEnumerable()
                 .Where(appointment => appointment?.Doctor?.Id == id &&
                         appointment.StartDate.ToShortDateString() == Date.ToShortDateString())
                 .ToList();

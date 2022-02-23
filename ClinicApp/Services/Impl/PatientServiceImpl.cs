@@ -1,5 +1,6 @@
 ﻿using ClinicApp.DbContexts;
 using ClinicApp.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClinicApp.Services.Impl
 {
@@ -43,8 +44,9 @@ namespace ClinicApp.Services.Impl
 
         public List<Appointment> GetPatientPreviousAppointments(int patientId)
         {
-           return ClinicAppDbContext.Appointments.AsEnumerable()
-                .Where(appointment => appointment?.Patient?.Id == patientId).ToList();
+           return ClinicAppDbContext.Appointments.Include(a => a.Patient).AsNoTracking().AsEnumerable()
+                .Where(appointment => appointment?.Patient?.Id == patientId)
+                .OrderByDescending(k=> k.StartDate).ToList();
         }
     }
 }

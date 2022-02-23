@@ -31,9 +31,9 @@ namespace ClinicApp.Controllers
         }
 
         [HttpGet("{id}/previous-appointments")]
-        public List<Appointment> GetPreviousAppointments(int patientId)
+        public List<Appointment> GetPreviousAppointments(int id)
         {
-            return PatientService.GetPatientPreviousAppointments(patientId);
+            return PatientService.GetPatientPreviousAppointments(id);
         }
 
         // POST api/<PatientController>
