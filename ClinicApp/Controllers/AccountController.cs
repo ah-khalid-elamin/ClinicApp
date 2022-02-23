@@ -1,4 +1,5 @@
 ﻿using ClinicApp.Models;
+using ClinicApp.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +15,6 @@ namespace ClinicApp.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-
-        private IConfiguration _config;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
@@ -63,7 +62,7 @@ namespace ClinicApp.Controllers
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, "User already exists!");
+                return Ok(new Response<String>(StatusCodes.Status500InternalServerError, "User already Exists!"));
             
             ApplicationUser user = new ApplicationUser()
             {

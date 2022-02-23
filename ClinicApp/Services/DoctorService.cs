@@ -1,4 +1,5 @@
 ﻿using ClinicApp.Models;
+using ClinicApp.Wrappers;
 
 namespace ClinicApp.Services
 {
@@ -7,12 +8,12 @@ namespace ClinicApp.Services
         public List<Doctor> GetDoctors();
         public Doctor GetDoctor(int Id);
         public Doctor Save(Doctor doctor);
-        public Doctor Update(Doctor doctor);
+        public Doctor Update(int Id, Doctor doctor);
         public void Delete(int Id);
-        public List<Appointment> GetAllDoctorAppointments(int id);
+        public List<Appointment> GetAllDoctorAppointments(int id, Pagination pagination);
         public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date);
         public bool IsAvailableforAnAppointmentByDate(int id, DateTime Date);
         public List<Doctor> GetDoctorsWithMostAppointmentsByDate(DateTime Date);
-        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date);
+        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date, Pagination pagination);
     }
 }

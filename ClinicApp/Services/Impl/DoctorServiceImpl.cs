@@ -1,20 +1,22 @@
 ﻿using ClinicApp.DbContexts;
 using ClinicApp.Models;
+using ClinicApp.Wrappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicApp.Services.Impl
 {
     public class DoctorServiceImpl : DoctorService
     {
-        public ClinicAppDbContext ClinicAppDbContext { get; set; }
+        private readonly ClinicAppDbContext ClinicAppDbContext;
 
-        public DoctorServiceImpl(ClinicAppDbContext clinicAppDbContext)
+        public DoctorServiceImpl(ClinicAppDbContext _clinicAppDbContext)
         {
-            ClinicAppDbContext = clinicAppDbContext;
+            this.ClinicAppDbContext = _clinicAppDbContext;
         }
         public List<Doctor> GetDoctors()
         {
-            return ClinicAppDbContext.Doctors.ToList();
+            return ClinicAppDbContext.Doctors
+                .ToList();
         }
         public Doctor GetDoctor(int Id)
         {
@@ -26,8 +28,14 @@ namespace ClinicApp.Services.Impl
             ClinicAppDbContext.SaveChanges();
             return doctor;
         }
-        public Doctor Update(Doctor doctor)
+        public Doctor Update(int Id, Doctor doctor)
         {
+            Doctor existingDoctor = GetDoctor(Id);
+            if (existingDoctor == null)
+            {
+                throw new Exception("This doctor does not exist");
+            }
+
             ClinicAppDbContext.Doctors.Update(doctor);
             ClinicAppDbContext.SaveChanges();
             return doctor;
@@ -39,9 +47,12 @@ namespace ClinicApp.Services.Impl
             ClinicAppDbContext.SaveChanges();
         }
 
-        public List<Appointment> GetAllDoctorAppointments(int id)
+        public List<Appointment> GetAllDoctorAppointments(int id, Pagination pagination)
         {
-            return ClinicAppDbContext.Appointments.Where(appointment => appointment.Doctor.Id == id).ToList();
+            return ClinicAppDbContext.Appointments.Where(appointment => appointment.Doctor.Id == id)
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToList();
         }
 
         public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date)
@@ -77,16 +88,22 @@ namespace ClinicApp.Services.Impl
 
         public List<Doctor> GetDoctorsWithMostAppointmentsByDate(DateTime Date)
         {
+            List<Appointment> GroupedAppointmentsThatDayByDoctors = ClinicAppDbContext.Appointments
+                .Include(a => a.Doctor).AsNoTracking().AsEnumerable()
+                .Where(appointment => appointment.StartDate.ToShortDateString() == Date.ToShortDateString())
+                .ToList();
+
             throw new NotImplementedException();
         }
 
-        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date)
+        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date, Pagination pagination)
         {
             List<Doctor> doctorsWhoExceedSixHours = new List<Doctor>();
             List<Doctor> doctorsWhoWorkedThatDate = new List<Doctor>();
 
             List<Appointment> appointmentsThatDate = ClinicAppDbContext.Appointments.
-                AsEnumerable().Where(app=> app.StartDate.ToShortDateString == Date.ToShortDateString).ToList();
+                AsEnumerable().Where(app=> app.StartDate.ToShortDateString == Date.ToShortDateString)
+                .ToList();
             
             foreach (Appointment appointment in appointmentsThatDate)
             {
@@ -105,7 +122,9 @@ namespace ClinicApp.Services.Impl
 
             }
 
-            return doctorsWhoExceedSixHours;
+            return doctorsWhoExceedSixHours.Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToList();
         }
         public Double CalculateTotalDoctorHoursInADay(int doctorId, DateTime Date)
         {

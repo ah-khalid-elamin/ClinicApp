@@ -2,6 +2,7 @@ using ClinicApp.DbContexts;
 using ClinicApp.Models;
 using ClinicApp.Services;
 using ClinicApp.Services.Impl;
+using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +15,12 @@ var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())  //location of the exe file
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
+
 IConfigurationRoot configuration = configurationBuilder.Build();
 
 var secretKey = configuration["Jwt:Key"];
+
+builder.Services.AddOData();
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDBContext>(opt =>
@@ -78,9 +82,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.EnableDependencyInjection();
+    endpoints.Expand().Select().Count().Filter().MaxTop(100).SkipToken();
+});
 app.MapControllers();
-
 app.Run();
