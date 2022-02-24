@@ -1,5 +1,6 @@
 ﻿using ClinicApp.Models;
 using ClinicApp.Services;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,9 +19,26 @@ namespace ClinicApp.Controllers
         }
         // GET: api/<PatientController>
         [HttpGet]
-        public List<Patient> Get()
+        [EnableQuery]
+        public IQueryable<Patient> Get()
         {
-            return PatientService.GetPatients();
+            return PatientService.GetPatients()
+                   .AsQueryable();
+        }
+
+        [HttpGet("CsvExport")]
+        public FileResult ExportDoctorsToCsv()
+        {
+            var patients = PatientService.ExportPatientsToCsv();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            foreach(var patient in patients)
+            {
+                sb.Append(patient);
+                sb.Append("\r\n");
+
+            }
+            return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "patients.csv");
         }
 
         // GET api/<PatientController>/5
@@ -31,9 +49,10 @@ namespace ClinicApp.Controllers
         }
 
         [HttpGet("{id}/previous-appointments")]
-        public List<Appointment> GetPreviousAppointments(int id)
+        public IQueryable<Appointment> GetPreviousAppointments(int id)
         {
-            return PatientService.GetPatientPreviousAppointments(id);
+            return PatientService.GetPatientPreviousAppointments(id)
+                .AsQueryable();
         }
 
         // POST api/<PatientController>

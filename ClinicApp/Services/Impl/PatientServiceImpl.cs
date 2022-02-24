@@ -48,5 +48,20 @@ namespace ClinicApp.Services.Impl
                 .Where(appointment => appointment?.Patient?.Id == patientId)
                 .OrderByDescending(k=> k.StartDate).ToList();
         }
+
+        public List<string> ExportPatientsToCsv()
+        {
+            List<String> results = new List<string>();
+
+            List<Patient> patients = GetPatients();
+            foreach (Patient patient in patients)
+            {
+                results.Add(patient.ToString());
+            }
+
+            return results;
+
+        }
+
     }
 }

@@ -10,5 +10,10 @@ namespace ClinicApp.Models
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
         public string Gender { get; set; }
+
+        public override String ToString()
+        {
+            return $"{Id}, {Name}, {BirthDate}, {Gender}";
+        }
     }
 }

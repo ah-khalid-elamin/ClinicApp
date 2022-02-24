@@ -47,11 +47,9 @@ namespace ClinicApp.Services.Impl
             ClinicAppDbContext.SaveChanges();
         }
 
-        public List<Appointment> GetAllDoctorAppointments(int id, Pagination pagination)
+        public List<Appointment> GetAllDoctorAppointments(int id)
         {
             return ClinicAppDbContext.Appointments.Where(appointment => appointment.Doctor.Id == id)
-                .Skip((pagination.Page - 1) * pagination.PageSize)
-                .Take(pagination.PageSize)
                 .ToList();
         }
 
@@ -96,7 +94,7 @@ namespace ClinicApp.Services.Impl
             throw new NotImplementedException();
         }
 
-        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date, Pagination pagination)
+        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date)
         {
             List<Doctor> doctorsWhoExceedSixHours = new List<Doctor>();
             List<Doctor> doctorsWhoWorkedThatDate = new List<Doctor>();
@@ -122,9 +120,7 @@ namespace ClinicApp.Services.Impl
 
             }
 
-            return doctorsWhoExceedSixHours.Skip((pagination.Page - 1) * pagination.PageSize)
-                .Take(pagination.PageSize)
-                .ToList();
+            return doctorsWhoExceedSixHours;
         }
         public Double CalculateTotalDoctorHoursInADay(int doctorId, DateTime Date)
         {
@@ -137,6 +133,20 @@ namespace ClinicApp.Services.Impl
             }
 
             return totalWorkedHours;
+        }
+
+        public List<string> ExportDoctorsToCsv()
+        {
+            List<string> result = new List<string>();
+
+            List<Doctor> doctors = GetDoctors();
+
+            foreach (var doctor in doctors)
+            {
+                result.Add(doctor.ToString());
+            }
+
+            return result;
         }
     }
 }

@@ -24,7 +24,22 @@ namespace ClinicApp.Controllers
         [EnableQuery]
         public IQueryable<Doctor> GetDoctors()
         {
-             return   DoctorService.GetDoctors().AsQueryable();
+             return DoctorService.GetDoctors().AsQueryable();
+        }
+
+        [HttpGet("CsvExport")]
+        public FileResult ExportDoctorsToCsv()
+        {
+            var doctors = DoctorService.ExportDoctorsToCsv();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            foreach (var doc in doctors)
+            {
+                sb.Append(doc);
+                sb.Append("\r\n");
+
+            }
+            return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "doctors.csv");
         }
 
         // GET api/doctors/5
@@ -41,28 +56,20 @@ namespace ClinicApp.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}/doctors-exceed-six-hours-list")]
-        public Pageable<List<Doctor>> GetDoctorWhoExceedSixHours(DateTime date, [FromQuery] Pagination pagination)
+        [EnableQuery]
+        public IQueryable<Doctor> GetDoctorWhoExceedSixHours(DateTime date)
         {
-            return new Pageable<List<Doctor>>
-               (
-                 pagination.Page,
-                 pagination.PageSize,
-                 StatusCodes.Status200OK
-               , "Retrieved Successfully"
-               , DoctorService.GetDoctorsWithAppointmentsExceedingSixHoursByDate(date, pagination));
+            return DoctorService.GetDoctorsWithAppointmentsExceedingSixHoursByDate(date)
+                   .AsQueryable();
         }
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("{id}/appointments-list")]
-        public Pageable<List<Appointment>> GetDoctorAppointments(int id, [FromQuery] Pagination pagination)
+        [EnableQuery]
+        public IQueryable<Appointment> GetDoctorAppointments(int id, [FromQuery] Pagination pagination)
         {
-            return new Pageable<List<Appointment>>
-               (
-                 pagination.Page,
-                 pagination.PageSize,
-                 StatusCodes.Status200OK
-               , "Retrieved Successfully"
-               , DoctorService.GetAllDoctorAppointments(id, pagination));
+            return DoctorService.GetAllDoctorAppointments(id)
+                .AsQueryable();
         }
 
         // POST api/<DoctorController>

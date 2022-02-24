@@ -10,10 +10,11 @@ namespace ClinicApp.Services
         public Doctor Save(Doctor doctor);
         public Doctor Update(int Id, Doctor doctor);
         public void Delete(int Id);
-        public List<Appointment> GetAllDoctorAppointments(int id, Pagination pagination);
+        public List<Appointment> GetAllDoctorAppointments(int id);
         public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date);
         public bool IsAvailableforAnAppointmentByDate(int id, DateTime Date);
         public List<Doctor> GetDoctorsWithMostAppointmentsByDate(DateTime Date);
-        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date, Pagination pagination);
+        public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date);
+        public List<String> ExportDoctorsToCsv();
     }
 }

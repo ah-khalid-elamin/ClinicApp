@@ -1,5 +1,7 @@
 ﻿using ClinicApp.Models;
 using ClinicApp.Services;
+using ClinicApp.Wrappers;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,50 +20,83 @@ namespace ClinicApp.Controllers
         }
         // GET: api/<AppointmentController>
         [HttpGet]
-        public List<Appointment> GetAllAppointments()
+        [EnableQuery]
+        public IQueryable<Appointment> GetAllAppointments()
         {
-            return appointmentService.GetAllAppointments();
+            return appointmentService.GetAllAppointments()
+                .AsQueryable();
+        }
+
+        [HttpGet("CsvExport")]
+        public FileResult ExportDoctorsToCsv()
+        {
+            var appointments = appointmentService.ExportAppointmentsToCsv();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            foreach (var app in appointments)
+            {
+                sb.Append(app);
+                sb.Append("\r\n");
+
+            }
+            return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "appointments.csv");
         }
 
         // GET api/<AppointmentController>/5
         [HttpGet("{id}")]
-        public Appointment GetAppointmentDetails(int id)
+        public Response<Appointment> GetAppointmentDetails(int id)
         {
-            return appointmentService.GetAppointmentDetails(id);
+            return new Response<Appointment>(
+                StatusCodes.Status200OK,
+                "Retrieved Successfully",
+                appointmentService.GetAppointmentDetails(id));
         }
 
         // POST api/<AppointmentController>
         [Authorize( Roles  = "Patient")]
         [HttpPost]
         [Route("book-appointment")]
-        public IActionResult Post([FromBody] Appointment appointment)
+        public Response<Appointment> Post([FromBody] Appointment appointment)
         {
             try
             {
-                appointmentService.BookAnAppointment(appointment);
-                return Ok(appointment);
+                return new Response<Appointment>(
+                 StatusCodes.Status200OK,
+                 "Appointment Booked Successfully",
+                  appointmentService.BookAnAppointment(appointment));
+                
 
             }
             catch (Exception e)
             {
-
-                 return BadRequest(e.Message);
+                return new Response<Appointment>(
+                StatusCodes.Status500InternalServerError,
+                e.Message,
+                 appointment);
             }        
         }
 
         // PUT api/<AppointmentController>/5
         [HttpPut("{id}")]
-        public Appointment Put(int id, [FromBody] Appointment appointment)
+        public Response<Appointment> Put(int id, [FromBody] Appointment appointment)
         {
-            return appointmentService.UpdateAnAppointment(id, appointment);
+            return new Response<Appointment>(
+                StatusCodes.Status200OK,
+                "Updated Successfully",
+                appointmentService.UpdateAnAppointment(id, appointment));
         }
 
         // DELETE api/<AppointmentController>/5
         [Authorize(Roles = "Admin,Doctor")]
         [HttpPost("cancel-appointment/{id}")]
-        public void CancelAnAppointment(int id)
+        public Response<String> CancelAnAppointment(int id)
         {
             appointmentService.CancelAppointment(id);
+
+            return new Response<String>(
+                StatusCodes.Status200OK,
+                "Appointment Canceled Successfully.",
+                String.Empty);
         }
     }
 }

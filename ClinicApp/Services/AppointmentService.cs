@@ -10,6 +10,6 @@ namespace ClinicApp.Services
         public Appointment BookAnAppointment(Appointment appointment);
         public Appointment UpdateAnAppointment(int id, Appointment appointment);
         public void CancelAppointment(int Id);
-
+        List<string> ExportAppointmentsToCsv();
     }
 }

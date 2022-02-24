@@ -11,5 +11,10 @@ namespace ClinicApp.Models
         public Doctor? Doctor { get; set; }
         public Patient? Patient { get; set; }
         public bool Confirmed { get; set; }
+
+        public override String ToString()
+        {
+            return $"{Id}, {StartDate}, {EndDate}, {Doctor}, {Patient}, {Confirmed}";
+        }
     }
 }

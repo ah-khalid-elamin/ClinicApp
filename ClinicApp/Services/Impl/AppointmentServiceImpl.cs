@@ -115,5 +115,18 @@ namespace ClinicApp.Services.Impl
 
             return false;
         }
+
+        public List<string> ExportAppointmentsToCsv()
+        {
+            List<String> results = new List<string>();
+
+            List<Appointment> appointments = GetAllAppointments();
+            foreach (Appointment appointment in appointments)
+            {
+                results.Add(appointment.ToString());
+            }
+
+            return results;
+        }
     }
 }
