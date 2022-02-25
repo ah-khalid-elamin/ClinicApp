@@ -1,6 +1,6 @@
-﻿using ClinicApp.Models;
-using ClinicApp.Services;
-using ClinicApp.Wrappers;
+﻿using Common.Models;
+using Common.Services;
+using Common.Wrappers;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +52,18 @@ namespace ClinicApp.Controllers
                  StatusCodes.Status200OK
                , "Retrieved Successfully"
                , DoctorService.GetDoctor(id));
+        }
+
+        // GET api/doctors/5
+        [HttpGet("{id}/slots")]
+        [Authorize(Roles = "Admin, Doctor, Patient")]
+        public Response<List<Slot>> GetDoctor(int id, [FromQuery] DateTime date)
+        {
+            return new Response<List<Slot>>
+               (
+                 StatusCodes.Status200OK
+               , "Retrieved Successfully"
+               , DoctorService.GetDoctorAvailableSlots(id,date));
         }
 
         [Authorize(Roles = "Admin")]

@@ -1,6 +1,6 @@
-﻿using ClinicApp.Models;
-using ClinicApp.Services;
-using ClinicApp.Wrappers;
+﻿using Common.Models;
+using Common.Services;
+using Common.Wrappers;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +53,7 @@ namespace ClinicApp.Controllers
         }
 
         // POST api/<AppointmentController>
-        [Authorize( Roles  = "Patient")]
+        [Authorize(Roles  = "Patient")]
         [HttpPost]
         [Route("book-appointment")]
         public Response<Appointment> Post([FromBody] Appointment appointment)
@@ -72,7 +72,7 @@ namespace ClinicApp.Controllers
                 return new Response<Appointment>(
                 StatusCodes.Status500InternalServerError,
                 e.Message,
-                 appointment);
+                 null);
             }        
         }
 

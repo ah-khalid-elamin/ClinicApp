@@ -1,7 +1,8 @@
-using ClinicApp.DbContexts;
-using ClinicApp.Models;
-using ClinicApp.Services;
-using ClinicApp.Services.Impl;
+using Common.Contexts;
+using Common.Models;
+using Common.Services;
+using Common.Wrappers;
+using Common.Services.Impl;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

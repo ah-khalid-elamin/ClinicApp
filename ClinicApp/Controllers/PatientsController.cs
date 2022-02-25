@@ -1,6 +1,8 @@
-﻿using ClinicApp.Models;
-using ClinicApp.Services;
+﻿using Common.Models;
+using Common.Services;
+using Common.Wrappers;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -42,6 +44,7 @@ namespace ClinicApp.Controllers
         }
 
         // GET api/<PatientController>/5
+        [Authorize(Roles ="Patient")]
         [HttpGet("{id}")]
         public Patient Get(int id)
         {
