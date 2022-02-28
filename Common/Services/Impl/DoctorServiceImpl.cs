@@ -157,6 +157,10 @@ namespace Common.Services.Impl
                 OrderBy(a => a.StartDate).ToList();
 
             List<Slot> availableSlots = new List<Slot>();
+
+            if (!IsAvailableforAnAppointmentByDate(id,date))
+                return availableSlots;
+
             DateTime startWorkingHours = DateTime.Parse($"{date.ToShortDateString()} 9:00");
             DateTime EndWorkingHours = DateTime.Parse($"{date.ToShortDateString()} 21:00");
             DateTime pointer = startWorkingHours;
