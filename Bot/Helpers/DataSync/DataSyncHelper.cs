@@ -60,6 +60,38 @@ namespace Bot.Helpers.DataSync
             var list = JsonConvert.DeserializeObject<List<Doctor>>(res);
             return list;
         }
+        public async Task<List<Doctor>> queryDoctorsById(int id)
+        {
+            HttpClient client = await GetDoctorClientAsync();
+            var res = await client.GetStringAsync($"{URIHelpers.Doctors_Controller}?$filter=id eq {id}");
+            var doc = JsonConvert.DeserializeObject<List<Doctor>>(res);
+            return doc;
+        }
+        public async Task<List<Appointment>> queryDoctorAppointmentsById(int id)
+        {
+            HttpClient client = await GetDoctorClientAsync();
+            var res = await client.GetStringAsync($"{URIHelpers.Appointments_Controller}?$filter=Doctor/id eq {id}");
+            var app = JsonConvert.DeserializeObject<List<Appointment>>(res);
+            return app;
+        }
+
+        public async Task<List<Doctor>> queryDoctorsByName(string name)
+        {
+            HttpClient client = await GetDoctorClientAsync();
+            var req = URIHelpers.Doctors_Controller + "?$filter=contains(tolower(name),tolower('" + name.Trim() + "'))";
+            var res = await client.GetStringAsync(req);
+            List<Doctor> docs = JsonConvert.DeserializeObject<List<Doctor>>(res);
+            return docs;
+        }
+
+        public async Task<List<Patient>> queryPatientsByName(string name)
+        {
+            HttpClient client = await GetDoctorClientAsync();
+            var res = await client.GetStringAsync($"{URIHelpers.Patients_Controller}?$filter=contains(tolower(name),tolower('{ name.Trim()}'))");
+            var list = JsonConvert.DeserializeObject<List<Patient>>(res);
+            return list;
+        }
+
         public async Task<List<Patient>> queryPatients()
         {
             HttpClient client = await GetDoctorClientAsync();
@@ -74,6 +106,13 @@ namespace Bot.Helpers.DataSync
             var res = await client.GetStringAsync($"{URIHelpers.Appointments_Controller}");
             var list = JsonConvert.DeserializeObject<List<Appointment>>(res);
             return list;
+        }
+        public async Task<Appointment> queryAppointment()
+        {
+            HttpClient client = await GetAdminClientAsync();
+            var req = await client.GetStringAsync($"{URIHelpers.Appointments_Controller}");
+            var res = JsonConvert.DeserializeObject<Appointment>(req);
+            return res;
         }
 
     }

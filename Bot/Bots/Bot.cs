@@ -21,13 +21,11 @@ namespace Bot.Bots
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            var replyText = "";
 
-            object res = await RequestResovler.Resolve(turnContext.Activity.Text);
+            List<Attachment> attachments = await RequestResovler.Resolve(turnContext.Activity.Text);
             
+            await turnContext.SendActivityAsync(MessageFactory.Carousel(attachments), cancellationToken);
 
-            replyText = $"Echo: {turnContext.Activity.Text}";
-            await turnContext.SendActivityAsync(MessageFactory.Text(res.ToString(), res.ToString()), cancellationToken);
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)

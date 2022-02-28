@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Bot.Schema;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Bot.Helpers.RequestResolver
 {
     public interface IRequestResolver
     {
-        Task<object> Resolve(string message);
+        Task<List<Attachment>> Resolve(string message);
     }
 }

@@ -1,11 +1,14 @@
-﻿using Bot.Helpers.DataSync;
+﻿using Bot.Helpers.AdaptiveCards;
+using Bot.Helpers.DataSync;
 using Common.Models;
 using Common.Services;
+using Microsoft.Bot.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bot.Helpers.RequestResolver
@@ -22,50 +25,103 @@ namespace Bot.Helpers.RequestResolver
             this.PatientService = patientService;
             this.AppointmentService = appointmentService;
         }
-        public async Task<object> Resolve(string message)
+        public async Task<List<Attachment>> Resolve(string message)
         {
-            object res = "";
+            List<Attachment> res = new List<Attachment>();
 
-            if (message.ToLower().Contains("list") && message.ToLower().Contains("doctors"))
+
+
+            if (message.ToLower().Contains("doctor"))
             {
-                List<Doctor> doctors = await queryDoctors();
-                foreach (Doctor doctor in doctors)
+                if (Regex.IsMatch(message, ".*[0-9].*"))
                 {
-                    res += $"ID: {doctor.Id} Name: {doctor.Name} Speciality: {doctor.Speciality}\n";
+                    //query doctor by id
+                    MatchCollection matches = new Regex("[0-9].*", RegexOptions.IgnoreCase).Matches(message);
+                    if (matches.Any())
+                    {
+                        int id = int.Parse(matches.FirstOrDefault().ToString().Trim());
+                        List<Doctor> docs = await queryDoctorsById(id);
+                        res = AdaptiveCardsHelper.GetDoctorsCards(docs);
+                        return res;
+                    }
+                }
+                if (Regex.IsMatch(message, "doctor .*") && !(message.Contains("appointment") || message.Contains("slot")))
+                {
+                    //query doctor by name
+                    MatchCollection matches = new Regex(" .*", RegexOptions.IgnoreCase).Matches(message);
+                    if (matches.Any())
+                    {
+                        string name = matches.FirstOrDefault().ToString();
+                        List<Doctor> docs = await queryDoctorsByName(name);
+                        res = AdaptiveCardsHelper.GetDoctorsCards(docs);
+                        return res;
+                    }
+                }
+                if (Regex.IsMatch(message, "doctor .*slot.*"))
+                {
+                    //query doctor available slots
+                }
+                if (Regex.IsMatch(message, "doctor .*appointments"))
+                {
+                    //query doctor appointments
+                    MatchCollection matches = new Regex(" .* ", RegexOptions.IgnoreCase).Matches(message);
+                    if (matches.Any())
+                    {
+                        string name = matches.FirstOrDefault().ToString();
+                        List<Doctor> docs = await queryDoctorsByName(name);
+                        
+                        Doctor doc = docs.FirstOrDefault();
+                        List<Appointment> appointments = await queryDoctorAppointmentsById(doc.Id);
+                            
+                        res = AdaptiveCardsHelper.GetAppointmentsCards(appointments);
+                        return res;
+                    }
+
+                }
+                if (Regex.IsMatch(message, ".*doctors"))
+                {
+                    List<Doctor> doctors = await queryDoctors();
+                    res = AdaptiveCardsHelper.GetDoctorsCards(doctors);
+                    return res;
                 }
                 
             }
-            else if (message.ToLower().Contains("list") && message.ToLower().Contains("patients"))
+            else if (message.ToLower().Contains("patient"))
             {
-                List<Patient> patients = await queryPatients();
-                foreach (Patient patient in patients)
+                if (Regex.IsMatch(message, "patient .*") && !(message.Contains("appointment") || message.Contains("slot")))
                 {
-                    res += $"{patient.Id} {patient.Name}\n";
+                    //query patient by name
+                    MatchCollection matches = new Regex(" .*", RegexOptions.IgnoreCase).Matches(message);
+                    if (matches.Any())
+                    {
+                        string name = matches.FirstOrDefault().ToString();
+                        List<Patient> patients = await queryPatientsByName(name);
+                        res = AdaptiveCardsHelper.GetPatientsCards(patients);
+                        return res;
+                    }
                 }
+                if (Regex.IsMatch(message, ".*patients"))
+                {
+                    List<Patient> patients = await queryPatients();
+                    res = AdaptiveCardsHelper.GetPatientsCards(patients);
+                    return res;
+                }
+
             }
-            else if (message.ToLower().Contains("list") && message.ToLower().Contains("appointments"))
+            else if (message.ToLower().Contains("appointments"))
             {
                 List<Appointment> appointments = await queryAppointments();
-                foreach (Appointment appointment in appointments)
-                {
-                    //Doctor doctor = DoctorService.GetDoctor(appointment?.Doctor.Id);
-                    //Patient patient = PatientService.GetPatient(appointment.Patient.Id);
-                    res += $"{appointment.Id} Start: {appointment.StartDate} End: {appointment.EndDate} Doctor: {appointment?.Doctor?.Name} Patient: {appointment?.Patient?.Name}\n";
-                }
+                res = AdaptiveCardsHelper.GetAppointmentsCards(appointments);
             }
             else if (message.ToLower().Contains("book"))
             {
-                List<Appointment> appointments = AppointmentService.GetAllAppointments();
-                foreach (Appointment appointment in appointments)
-                {
-                    //Doctor doctor = DoctorService.GetDoctor(appointment?.Doctor.Id);
-                    //Patient patient = PatientService.GetPatient(appointment.Patient.Id);
-                    res += $"{appointment.Id} Start: {appointment.StartDate} End: {appointment.EndDate} Doctor: {appointment?.Doctor?.Name} Patient: {appointment?.Patient?.Name}\n";
-                }
+                Appointment appointment = await queryAppointment();
+                res.Add(AdaptiveCardsHelper.GetAppointmentCard(appointment));
+                
             }
             else
             {
-                res = "Unsupported operation";
+                res.Add(AdaptiveCardsHelper.GetUnsupportedOperationCard());
             }
 
             return res;
