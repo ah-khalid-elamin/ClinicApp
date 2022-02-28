@@ -1,4 +1,5 @@
 ﻿using Common.Models;
+using Common.Services;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,17 +19,24 @@ namespace ClinicApp.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
+        private readonly PatientService patientService;
+        private readonly DoctorService doctorService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, 
+            IConfiguration configuration,
+            DoctorService doctorService,
+            PatientService patientService)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
-            _configuration = configuration;
+            this._configuration = configuration;
+            this.doctorService = doctorService;
+            this.patientService = patientService;
         }
 
         [HttpPost]
         [Route("register-Doctor")]
-        public async Task<IActionResult> RegisterDoctor([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterDoctor([FromBody] DoctorRegister model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -45,6 +53,17 @@ namespace ClinicApp.Controllers
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, result);
 
+            //save Doctor
+            Doctor doctor = new Doctor()
+            {
+                Id = 0,
+                Name = model.Name,
+                BirthDate = model.BirthDate,
+                Speciality = model.Speciality
+            };
+
+            doctorService.Save(doctor);
+
             if (!await roleManager.RoleExistsAsync(UserRoles.Doctor))
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.Doctor));
 
@@ -58,7 +77,7 @@ namespace ClinicApp.Controllers
 
         [HttpPost]
         [Route("register-Patient")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] PatientRegister model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -74,6 +93,18 @@ namespace ClinicApp.Controllers
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, result);
+
+            //save Patient
+            Patient patient = new Patient()
+            {
+                Id = 0,
+                Name = model.Name,
+                BirthDate = model.BirthDate,
+                Gender = model.Gender
+            };
+
+            patientService.Save(patient);
+
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Patient))
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.Patient));
@@ -96,7 +127,7 @@ namespace ClinicApp.Controllers
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                UserName = model.Username,
             };
             var result = await userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)

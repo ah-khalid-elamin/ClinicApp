@@ -87,12 +87,15 @@ namespace Common.Services.Impl
 
         public List<Doctor> GetDoctorsWithMostAppointmentsByDate(DateTime Date)
         {
-            List<Appointment> GroupedAppointmentsThatDayByDoctors = ClinicAppDbContext.Appointments
-                .Include(a => a.Doctor).AsNoTracking().AsEnumerable()
-                .Where(appointment => appointment.StartDate.ToShortDateString() == Date.ToShortDateString())
+            List<Doctor> doctors = ClinicAppDbContext.Appointments.Include(a => a.Doctor).AsNoTracking()
+                .AsEnumerable()
+                .Where(a => a.StartDate.ToShortDateString() == Date.ToShortDateString())
+                .GroupBy(a => a.Doctor)
+                .OrderByDescending(d => d.Count())
+                .Select(d => d.Key)
                 .ToList();
 
-            throw new NotImplementedException();
+            return doctors; 
         }
 
         public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date)

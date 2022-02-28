@@ -5,11 +5,13 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClinicApp", "ClinicApp\ClinicApp.csproj", "{58E8057B-5829-4F61-B0AA-E3DAACFDEA34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{458ACBAA-6757-4F65-A368-077F05044195}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{458ACBAA-6757-4F65-A368-077F05044195}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot", "Bot\Bot.csproj", "{632A3D27-82F7-45FE-B946-317C10DF4771}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot", "Bot\Bot.csproj", "{632A3D27-82F7-45FE-B946-317C10DF4771}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications", "Notifications\Notifications.csproj", "{46067AF4-2188-45BC-A86E-3EFB3C558C37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notifications", "Notifications\Notifications.csproj", "{46067AF4-2188-45BC-A86E-3EFB3C558C37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicAppTests", "ClinicAppTests\ClinicAppTests.csproj", "{4ECC18C5-382E-41C1-95B8-ED833DD19F0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{46067AF4-2188-45BC-A86E-3EFB3C558C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46067AF4-2188-45BC-A86E-3EFB3C558C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46067AF4-2188-45BC-A86E-3EFB3C558C37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ECC18C5-382E-41C1-95B8-ED833DD19F0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ECC18C5-382E-41C1-95B8-ED833DD19F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ECC18C5-382E-41C1-95B8-ED833DD19F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ECC18C5-382E-41C1-95B8-ED833DD19F0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

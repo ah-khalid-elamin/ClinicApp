@@ -35,7 +35,7 @@ namespace Common.Services.Impl
             //check appointment duration
             if (!checkAppointmentDuration(StartDate,EndDate))
             {
-                throw new Exception("This is an error with the appointment duarion");
+                throw new InvalidOperationException("There is an error with the appointment duration");
             }
 
             if(!checkIsAvailableSlot(doctor.Id,StartDate,EndDate))
@@ -121,7 +121,7 @@ namespace Common.Services.Impl
         }
         public bool ExistBetween(DateTime start, DateTime End, DateTime target)
         {
-            if(start.CompareTo(target) <= 0 && End.CompareTo(target) >= 0)
+            if(start.CompareTo(target) < 0 && End.CompareTo(target) > 0)
                 return true;
 
             return false;

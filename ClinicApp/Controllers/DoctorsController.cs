@@ -67,11 +67,18 @@ namespace ClinicApp.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("{id}/doctors-exceed-six-hours-list")]
+        [HttpGet("doctors-exceed-six-hours-list")]
         [EnableQuery]
         public IQueryable<Doctor> GetDoctorWhoExceedSixHours(DateTime date)
         {
             return DoctorService.GetDoctorsWithAppointmentsExceedingSixHoursByDate(date)
+                   .AsQueryable();
+        }
+        [HttpGet("doctors-with-most-appointments")]
+        [EnableQuery]
+        public IQueryable<Doctor> GetDoctorsWithMostAppointments(DateTime date)
+        {
+            return DoctorService.GetDoctorsWithMostAppointmentsByDate(date)
                    .AsQueryable();
         }
 
@@ -82,19 +89,6 @@ namespace ClinicApp.Controllers
         {
             return DoctorService.GetAllDoctorAppointments(id)
                 .AsQueryable();
-        }
-
-        // POST api/<DoctorController>
-        [HttpPost]
-        public Response<Doctor> Post([FromBody] Doctor doctor)
-        {
-            return new Response<Doctor>
-              (
-                StatusCodes.Status201Created
-              , "Created Successfully"
-              , DoctorService.Save(doctor));
-
-           
         }
 
         // PUT api/<DoctorController>/5

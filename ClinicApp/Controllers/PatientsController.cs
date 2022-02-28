@@ -58,13 +58,6 @@ namespace ClinicApp.Controllers
                 .AsQueryable();
         }
 
-        // POST api/<PatientController>
-        [HttpPost]
-        public void Post([FromBody] Patient patient)
-        {
-            PatientService.Save(patient);
-        }
-
         // PUT api/<PatientController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Patient patient)
