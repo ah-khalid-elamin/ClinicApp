@@ -1,5 +1,8 @@
-﻿using Common.Models;
+﻿using Common.Contexts;
+using Common.Models;
 using Common.Services;
+using Common.Services.Impl;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -12,39 +15,105 @@ namespace ClinicAppTests
 {
     public class PatientTests
     {
-        Mock<PatientService> patientService;
-        Patient patient;
+        public PatientService patientService { get; set; }
+        public Mock<DbSet<Patient>> setMock = new Mock<DbSet<Patient>>();
+        public Mock<ClinicAppDbContext> context = new Mock<ClinicAppDbContext>();
+        public Patient patient { get; set; }
 
+        
 
-        [SetUp]
-        public void SetUp()
+        [Test]
+        public void SavePatientTest()
         {
-            patient = new Patient()
+
+            //arrange
+
+            context.Setup(context => context.Patients).Returns(GetDbSetMock<Patient>().Object);
+            patientService = new PatientServiceImpl(context.Object);
+
+
+            Patient patient = new Patient()
             {
-                Id = 1,
-                Name = "User name",
+                Name = "Patient0",
                 BirthDate = DateTime.Now,
                 Gender = "Undefined"
             };
 
-            patientService = new Mock<PatientService>();
-            patientService.Setup(p => p.Save(patient)).Returns(patient);
+            //action
+            patientService.Save(patient);
 
+            //verify
+            context.Verify(c => c.Patients.Add(patient), Times.Once);
+            context.Verify(s=>s.SaveChanges(), Times.Once);
         }
         [Test]
-        public void SavePatientTest()
-        { 
-           Patient p = patientService.Object.Save(patient);
-           patientService.Verify(p => p.Save(patient), Times.Once);
-
-        }
-        [Test]
-        public void UpdatePatientTest()
+        public void UpdateAnExistingPatientTest()
         {
-            Patient p = patientService.Object.Update(1, patient);
-            patientService.Verify(p => p.Update(patient.Id, patient), Times.Once);
+            //arrange
+            Patient patient = new Patient()
+            {
+                Id = 1,
+                Name = "Patient0",
+                BirthDate = DateTime.Now,
+                Gender = "Undefined"
+            };
+
+            List<Patient> list = new List<Patient>()
+            {
+                patient
+            };
+
+            context.Setup(context => context.Patients).Returns(GetDbSetMock<Patient>(
+                list
+
+                ).Object) ;
+
+
+            patientService = new PatientServiceImpl(context.Object);
+
+
+            //action
+            patientService.Update(patient.Id, patient);
+
+            //verify
+            context.Verify(c => c.Patients.Update(patient), Times.Once);
+            context.Verify(s => s.SaveChanges(), Times.AtLeastOnce);
+        }
+        [Test]
+        public void UpdateNonExistingPatientTest()
+        {
+            //arrange
+
+            context.Setup(context => context.Patients).Returns(GetDbSetMock<Patient>().Object);
+            patientService = new PatientServiceImpl(context.Object);
+
+            Patient patient = new Patient()
+            {
+                Id = 1,
+                Name = "Patient0",
+                BirthDate = DateTime.Now,
+                Gender = "Undefined"
+            };
+
+            //verify
+            Assert.Throws<Exception>(() => {
+                patientService.Update(patient.Id, patient); //Action
+            });
 
         }
+        private static Mock<DbSet<T>> GetDbSetMock<T>(IEnumerable<T> items = null) where T : class
+        {
+            if (items == null)
+            {
+                items = new T[0];
+            }
 
+            var dbSetMock = new Mock<DbSet<T>>();
+            var q = dbSetMock.As<IQueryable<T>>();
+
+            q.Setup(x => x.GetEnumerator()).Returns(items.GetEnumerator);
+
+            return dbSetMock;
+        }
     }
 }

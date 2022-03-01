@@ -24,14 +24,6 @@ namespace ClinicAppTests
         [Test]
         public void InvalidAppointmentDurationTest()
         {
-            var mockContext = new Mock<ClinicAppDbContext>();
-            var doctorService = new Mock<DoctorService>();
-
-            var mockSet = new Mock<DbSet<Appointment>>();
-
-            mockContext.Setup(m => m.Appointments).Returns(mockSet.Object);
-            var appointmentService = new Mock<AppointmentService>();
-
             Appointment appointment = new Appointment()
             {
                 Id = 1,
@@ -40,8 +32,6 @@ namespace ClinicAppTests
                 Doctor = null,
                 Patient = null,
             };
-
-            appointmentService.BookAnAppointment(appointment);
         }
 
     }

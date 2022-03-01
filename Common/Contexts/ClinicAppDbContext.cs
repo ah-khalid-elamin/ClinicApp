@@ -9,9 +9,9 @@ namespace Common.Contexts
                    : base(options)
         {
         }
-
+        public ClinicAppDbContext() { }
         public DbSet<Appointment> Appointments { get; set; } = null!;
         public DbSet<Doctor> Doctors { get; set; } = null!;
-        public DbSet<Patient> Patients { get; set; } = null!;
+        public virtual DbSet<Patient> Patients { get; set; } = null!;
     }
 }

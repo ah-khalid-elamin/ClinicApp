@@ -29,10 +29,18 @@ namespace Common.Services.Impl
         public Patient Update(int id, Patient patient)
         {
             Patient _existingPatient = GetPatient(id);
-            if (_existingPatient == null) throw new Exception("No Such Patient Exist");
+            if (_existingPatient != null)
+            {
+                ClinicAppDbContext.Patients.Update(patient);
+                ClinicAppDbContext.SaveChanges();
 
-            ClinicAppDbContext.Patients.Update(patient);
-            ClinicAppDbContext.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("No Such Patient Exist");
+                return null;
+            }
+
             return patient;
         }
         public void Delete(int Id)
