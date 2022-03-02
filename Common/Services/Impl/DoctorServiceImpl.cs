@@ -101,19 +101,15 @@ namespace Common.Services.Impl
         public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date)
         {
             List<Doctor> doctorsWhoExceedSixHours = new List<Doctor>();
-            List<Doctor> doctorsWhoWorkedThatDate = new List<Doctor>();
-
-            List<Appointment> appointmentsThatDate = ClinicAppDbContext.Appointments.
-                AsEnumerable().Where(app=> app.StartDate.ToShortDateString == Date.ToShortDateString)
+            List<Doctor> doctorsWhoWorkedThatDate = 
+                ClinicAppDbContext.Appointments.Include(a=>a.Doctor).AsNoTracking()
+                .AsEnumerable().Where(app=> app.StartDate.ToShortDateString() == Date.ToShortDateString())
+                .GroupBy(a=>a.Doctor)
+                .Select(group=>group.Key)
+                .DistinctBy(doctor => doctor.Id)
                 .ToList();
             
-            foreach (Appointment appointment in appointmentsThatDate)
-            {
-                Doctor doctor = new Doctor();
-                doctor = appointment?.Doctor;
-                doctorsWhoWorkedThatDate.Add(doctor);
-
-            }
+            
 
             foreach (var doctor in doctorsWhoWorkedThatDate)
             {

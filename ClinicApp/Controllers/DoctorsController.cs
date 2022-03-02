@@ -69,14 +69,14 @@ namespace ClinicApp.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet("doctors-exceed-six-hours-list")]
         [EnableQuery]
-        public IQueryable<Doctor> GetDoctorWhoExceedSixHours(DateTime date)
+        public IQueryable<Doctor> GetDoctorWhoExceedSixHours([FromQuery] DateTime date)
         {
             return DoctorService.GetDoctorsWithAppointmentsExceedingSixHoursByDate(date)
                    .AsQueryable();
         }
         [HttpGet("doctors-with-most-appointments")]
         [EnableQuery]
-        public IQueryable<Doctor> GetDoctorsWithMostAppointments(DateTime date)
+        public IQueryable<Doctor> GetDoctorsWithMostAppointments([FromQuery] DateTime date)
         {
             return DoctorService.GetDoctorsWithMostAppointmentsByDate(date)
                    .AsQueryable();
