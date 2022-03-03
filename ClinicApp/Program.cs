@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,34 +36,16 @@ builder.Services.AddScoped<DoctorService, DoctorServiceImpl>();
 builder.Services.AddScoped<AppointmentService, AppointmentServiceImpl>();
 
 
-// For Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-        options.Password.RequireDigit = false
-   )
-.AddEntityFrameworkStores<ApplicationDBContext>()
-.AddDefaultTokenProviders();
+//// For Identity
+//builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+//        options.Password.RequireDigit = false
+//   )
+//.AddEntityFrameworkStores<ApplicationDBContext>()
+//.AddDefaultTokenProviders();
 
 // Adding Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-// Adding Jwt Bearer
-.AddJwtBearer(options =>
-{
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        //ValidAudience = configuration["Jwt.ValidAudience"],
-        //ValidIssuer = configuration["Jwt.Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-    };
-});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2C"));
 
 builder.Services.AddControllers();
 
