@@ -17,20 +17,19 @@ namespace Common.Services.Impl
 
         public Appointment BookAnAppointment(Doctor doctor, Patient patient, DateTime StartDate, DateTime EndDate, bool confirmed)
         {
-            // check doctor availability
-            if (!doctorService.IsAvailableforAnAppointmentByDate(doctor.Id, StartDate))
-                throw new Exception("This doctor is full today.");
             
             //check clinic working hours
             DateTime clinicStart = DateTime.Parse($"{StartDate.ToShortDateString()} 9:00");
             DateTime clinicEnd = DateTime.Parse($"{StartDate.ToShortDateString()} 21:00");
 
             if(StartDate < clinicStart)
-                throw new Exception("Clinic opens at 9:00 AM");
+                throw new InvalidOperationException("Clinic opens at 9:00 AM");
 
             if (EndDate > clinicEnd)
-                throw new Exception("Clinic closes at 9:00 PM");
+                throw new InvalidOperationException("Clinic closes at 9:00 PM");
 
+            if (doctor == null) throw new ArgumentNullException("Doctor is missing");
+            if (patient == null) throw new ArgumentNullException("Patient is missing");
 
             //check appointment duration
             if (!checkAppointmentDuration(StartDate,EndDate))
@@ -38,8 +37,12 @@ namespace Common.Services.Impl
                 throw new InvalidOperationException("There is an error with the appointment duration");
             }
 
-            if(!checkIsAvailableSlot(doctor.Id,StartDate,EndDate))
-                throw new Exception("This Appointment schedule conflict with other appointments");
+            // check doctor availability
+            if (!doctorService.IsAvailableforAnAppointmentByDate(doctor.Id, StartDate))
+                throw new InvalidOperationException("This doctor is full today.");
+
+            if (!checkIsAvailableSlot(doctor.Id,StartDate,EndDate))
+                throw new InvalidOperationException("This Appointment schedule conflict with other appointments");
 
             Appointment appointment = new Appointment()
             {
