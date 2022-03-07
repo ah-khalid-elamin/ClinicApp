@@ -1,4 +1,5 @@
 ﻿using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Bot.Helpers.RequestResolver
 {
     public interface IRequestResolver
     {
-        Task<List<Attachment>> Resolve(string message);
+        Task<List<Attachment>> Resolve(TeamsChannelAccount user, string message);
     }
 }

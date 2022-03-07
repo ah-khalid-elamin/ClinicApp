@@ -15,21 +15,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())  //location of the exe file
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
 
 IConfigurationRoot configuration = configurationBuilder.Build();
-
-var secretKey = configuration["Jwt:Key"];
 
 builder.Services.AddOData();
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDBContext>(opt =>
-    opt.UseSqlServer(configuration["connectionString"]));
+    opt.UseSqlServer(configuration.GetConnectionString("ClinicApp")));
 
 builder.Services.AddDbContext<ClinicAppDbContext>(opt =>
-    opt.UseSqlServer(configuration["connectionString"]));
+    opt.UseSqlServer(configuration.GetConnectionString("ClinicApp")));
 
 builder.Services.AddScoped<PatientService, PatientServiceImpl>();
 builder.Services.AddScoped<DoctorService, DoctorServiceImpl>();
@@ -64,6 +63,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseRouting();

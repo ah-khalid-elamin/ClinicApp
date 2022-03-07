@@ -3,6 +3,8 @@ using Bot.Helpers.DataSync;
 using Common.Models;
 using Common.Services;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,18 +20,18 @@ namespace Bot.Helpers.RequestResolver
         private readonly DoctorService DoctorService;
         private readonly PatientService PatientService;
         private readonly AppointmentService AppointmentService;
+        private readonly IConfiguration Configuration;
 
-        public RequestResolver(DoctorService doctorService, PatientService patientService, AppointmentService appointmentService)
+        public RequestResolver(IConfiguration _configuration)
         {
-            this.DoctorService = doctorService;
-            this.PatientService = patientService;
-            this.AppointmentService = appointmentService;
+            this.Configuration = _configuration;
         }
-        public async Task<List<Attachment>> Resolve(string message)
+
+        public async Task<List<Attachment>> Resolve(TeamsChannelAccount user, string message)
         {
+
+
             List<Attachment> res = new List<Attachment>();
-
-
 
             if (message.ToLower().Contains("doctor"))
             {
