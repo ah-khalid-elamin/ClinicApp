@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Concurrent;
+using Microsoft.Bot.Schema;
 
 namespace Bot
 {
@@ -38,19 +40,12 @@ namespace Bot
 
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
-
-            services.AddDbContext<ApplicationDBContext>(opt =>
-                opt.UseSqlServer(Configuration["connectionString"]));
-
-            services.AddDbContext<ClinicAppDbContext>(opt =>
-                opt.UseSqlServer(Configuration["connectionString"]));
+            services.AddSingleton<ConcurrentDictionary<string, ConversationReference>>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, Bots.Bot>();
             services.AddTransient<IRequestResolver, RequestResolver>();
-            services.AddScoped<PatientService, PatientServiceImpl>();
-            services.AddScoped<DoctorService, DoctorServiceImpl>();
-            services.AddScoped<AppointmentService, AppointmentServiceImpl>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -22,9 +22,17 @@ namespace ClinicApp.Controllers
         [Authorize(Roles = "Admin, Doctor, Patient")]
         [HttpGet]
         [EnableQuery]
-        public IQueryable<Doctor> GetDoctors()
+        public ActionResult<IQueryable<Doctor>> GetDoctors()
         {
-             return DoctorService.GetDoctors().AsQueryable();
+            try
+            {
+                return Ok(DoctorService.GetDoctors().AsQueryable());
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e);
+            }
+
         }
 
         [HttpGet("CsvExport")]
