@@ -15,9 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())  //location of the exe file
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables();
-
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 IConfigurationRoot configuration = configurationBuilder.Build();
 
