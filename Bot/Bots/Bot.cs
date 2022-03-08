@@ -5,7 +5,9 @@
 
 using Bot.Helpers.RequestResolver;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,14 +17,17 @@ namespace Bot.Bots
     public class Bot : ActivityHandler
     {
         private readonly IRequestResolver RequestResovler;
-        public Bot(IRequestResolver requestResolver)
+        private readonly ConcurrentDictionary<string, ConversationReference> _conversationReferences;
+        public Bot(IRequestResolver requestResolver, ConcurrentDictionary<string, ConversationReference> conconversationReferences)
         {
             this.RequestResovler = requestResolver;
+            this._conversationReferences = conconversationReferences;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+            var currentUser = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id);
 
-            List<Attachment> attachments = await RequestResovler.Resolve(turnContext.Activity.Text);
+            List<Attachment> attachments = await RequestResovler.Resolve(currentUser, turnContext.Activity.Text);
             
             await turnContext.SendActivityAsync(MessageFactory.Carousel(attachments), cancellationToken);
 
@@ -38,6 +43,18 @@ namespace Bot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
                 }
             }
+        }
+        private void AddConversationReference(Activity activity)
+        {
+            var conversationReference = activity.GetConversationReference();
+            _conversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
+        }
+
+        protected override Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            AddConversationReference(turnContext.Activity as Activity);
+
+            return base.OnConversationUpdateActivityAsync(turnContext, cancellationToken);
         }
     }
 }

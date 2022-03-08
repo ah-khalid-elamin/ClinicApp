@@ -20,7 +20,11 @@ namespace ClinicAppTests
         public Mock<ClinicAppDbContext> context = new Mock<ClinicAppDbContext>();
         public Patient patient { get; set; }
 
-        
+        [SetUp]
+        public void SetUp()
+        {
+
+        }
 
         [Test]
         public void SavePatientTest()
@@ -44,7 +48,7 @@ namespace ClinicAppTests
 
             //verify
             context.Verify(c => c.Patients.Add(patient), Times.Once);
-            context.Verify(s=>s.SaveChanges(), Times.Once);
+            context.Verify(s => s.SaveChanges(), Times.Once);
         }
         [Test]
         public void UpdateAnExistingPatientTest()
@@ -66,7 +70,7 @@ namespace ClinicAppTests
             context.Setup(context => context.Patients).Returns(GetDbSetMock<Patient>(
                 list
 
-                ).Object) ;
+                ).Object);
 
 
             patientService = new PatientServiceImpl(context.Object);

@@ -10,8 +10,8 @@ namespace Common.Contexts
         {
         }
         public ClinicAppDbContext() { }
-        public DbSet<Appointment> Appointments { get; set; } = null!;
-        public DbSet<Doctor> Doctors { get; set; } = null!;
+        public virtual DbSet<Appointment> Appointments { get; set; } = null!;
+        public virtual DbSet<Doctor> Doctors { get; set; } = null!;
         public virtual DbSet<Patient> Patients { get; set; } = null!;
     }
 }
