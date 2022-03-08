@@ -144,14 +144,7 @@ namespace ClinicAppTests
                 Doctor = new Doctor()
             };
 
-
-            // action and verify
-            var exception = Assert.Throws<ArgumentNullException>(() => {
-                appointmentService.BookAnAppointment(appointment);
-            });
-
-            Assert.AreEqual("Patient is missing", exception.ParamName);
-
+            appointmentService.BookAnAppointment(appointment);
         }
 
 
