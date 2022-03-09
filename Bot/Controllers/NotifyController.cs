@@ -31,7 +31,7 @@ namespace Bot.Controllers
 
         public async Task<IActionResult> Get()
         {
-            _conversationReferences = _conversationReferenceService.GetAllConversationReferences();
+            _conversationReferences = await _conversationReferenceService.GetAllConversationReferences();
             foreach (var conversationReference in _conversationReferences)
             {
                 await ((BotAdapter)_adapter).ContinueConversationAsync(_appId, conversationReference, BotCallback, default(CancellationToken));

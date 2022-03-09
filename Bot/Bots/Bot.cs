@@ -48,6 +48,9 @@ namespace Bot.Bots
             ConversationReference botConRef = turnContext.Activity.GetConversationReference();
             var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
             await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
+
+            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to our Clinic bot!"), cancellationToken);
+
         }
         protected override async Task OnInstallationUpdateActivityAsync(ITurnContext<IInstallationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -55,10 +58,10 @@ namespace Bot.Bots
             ConversationReference botConRef = turnContext.Activity.GetConversationReference();
             var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
 
-            if (activity.Action.Equals("add"))
-                await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
-            else if (activity.Action.Equals("remove"))
-                await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
+            await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
+            
+            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to our Clinic bot!"), cancellationToken);
+
 
         }
     }
