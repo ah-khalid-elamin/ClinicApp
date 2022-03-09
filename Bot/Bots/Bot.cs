@@ -3,6 +3,7 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.15.0
 
+using Bot.Helpers.Conversations;
 using Bot.Helpers.RequestResolver;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Teams;
@@ -17,11 +18,15 @@ namespace Bot.Bots
     public class Bot : ActivityHandler
     {
         private readonly IRequestResolver RequestResovler;
-        private readonly ConcurrentDictionary<string, ConversationReference> _conversationReferences;
-        public Bot(IRequestResolver requestResolver, ConcurrentDictionary<string, ConversationReference> conconversationReferences)
+        private readonly IConversationReferenceService ConversationReferenceService;
+        private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+        public Bot(IRequestResolver requestResolver, ConcurrentDictionary<string, 
+            ConversationReference> conconversationReferences,
+            IConversationReferenceService conversationReferenceService)
         {
             this.RequestResovler = requestResolver;
-            this._conversationReferences = conconversationReferences;
+            this.ConversationReferences = conconversationReferences;
+            this.ConversationReferenceService = conversationReferenceService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -32,29 +37,29 @@ namespace Bot.Bots
             await turnContext.SendActivityAsync(MessageFactory.Carousel(attachments), cancellationToken);
 
         }
-
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Welcome to our Clinic Chatbot!";
-            foreach (var member in membersAdded)
-            {
-                if (member.Id != turnContext.Activity.Recipient.Id)
-                {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
-                }
-            }
+            ConversationReference botConRef = turnContext.Activity.GetConversationReference();
+            var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
+            await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
         }
-        private void AddConversationReference(Activity activity)
+        protected override async Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var conversationReference = activity.GetConversationReference();
-            _conversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
+            ConversationReference botConRef = turnContext.Activity.GetConversationReference();
+            var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
+            await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
         }
-
-        protected override Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        protected override async Task OnInstallationUpdateActivityAsync(ITurnContext<IInstallationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            AddConversationReference(turnContext.Activity as Activity);
+            var activity = turnContext.Activity;
+            ConversationReference botConRef = turnContext.Activity.GetConversationReference();
+            var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
 
-            return base.OnConversationUpdateActivityAsync(turnContext, cancellationToken);
+            if (activity.Action.Equals("add"))
+                await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
+            else if (activity.Action.Equals("remove"))
+                await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
+
         }
     }
 }

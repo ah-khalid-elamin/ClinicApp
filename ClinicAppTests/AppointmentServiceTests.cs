@@ -34,7 +34,7 @@ namespace ClinicAppTests
 
             // action and verify
             var exception = Assert.Throws<ArgumentNullException>(() => {
-                appointmentService.BookAnAppointment(appointment);
+               // appointmentService.BookAnAppointment(appointment);
             });
 
             Assert.AreEqual("Doctor is missing", exception.ParamName);
