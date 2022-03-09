@@ -47,11 +47,29 @@ namespace Bot.Helpers.Conversations
             return await GetAsync(conversationId);
         }
 
-        public List<ConversationReferenceEntity> GetAllConversationReferences()
+        public async Task<List<ConversationReference>> GetAllConversationReferences()
         {
-            throw new System.NotImplementedException();
-        }
+            List<ConversationReferenceEntity> entities = await GetAllAsync();
+            List<ConversationReference> conversationReferences = new List<ConversationReference>();
 
+            foreach (var entity in entities)
+            {
+                conversationReferences.Add(GetConversationReferenceFromEntity(entity));
+            }
+
+            return conversationReferences;
+        }
+        private ConversationReference GetConversationReferenceFromEntity(ConversationReferenceEntity entity)
+        {
+            return new ConversationReference()
+            {
+                Conversation = new ConversationAccount()
+                {
+                    Id = entity.ConversationId
+                },
+                ServiceUrl = entity.ServiceUrl,
+            };
+        }
         public  Task RemoveConversationReference(ConversationReference reference, TeamsChannelAccount member)
         {
             var entity = ConvertConversationReferanceForDB(reference, member);

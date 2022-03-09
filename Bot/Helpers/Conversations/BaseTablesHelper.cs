@@ -49,6 +49,10 @@ namespace Bot.Helpers.Conversations {
             return result.Result as TEntity;
         }
 
-
+        public async Task<List<TEntity>> GetAllAsync()
+        {
+            var queryOperation = new TableQuery<TEntity>();
+            return _table.ExecuteQuery<TEntity>(queryOperation).ToList();
+        }
     }
 }
