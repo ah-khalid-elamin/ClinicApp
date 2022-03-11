@@ -9,6 +9,7 @@ namespace Bot.Helpers.Conversations
     public interface IConversationReferenceService
     {
         Task<List<ConversationReference>> GetAllConversationReferences();
+        Task<ConversationReference> GetConversationReferenceByUser(string userId);
         Task<ConversationReferenceEntity> GetConversationReference(string conversationId);
         Task AddOrUpdateConversationReference(ConversationReference reference, TeamsChannelAccount member);
         Task RemoveConversationReference(ConversationReference reference, TeamsChannelAccount member);

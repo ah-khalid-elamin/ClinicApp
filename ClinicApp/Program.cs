@@ -42,7 +42,7 @@ builder.Services.AddScoped<AppointmentService, AppointmentServiceImpl>();
 
 // Adding Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2C"));
+        .AddMicrosoftIdentityWebApi(configuration.GetSection("AzureAdB2B"));
 
 builder.Services.AddControllers();
 

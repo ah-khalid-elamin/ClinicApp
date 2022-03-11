@@ -1,4 +1,5 @@
 ﻿using Bot.Helpers.Conversations;
+using Bot.Helpers.Notifications;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -12,43 +13,28 @@ using System.Threading.Tasks;
 
 namespace Bot.Controllers
 {
-    [Route("api/notify")]
+    [Route("api/notifications")]
     [ApiController]
     public class NotifyController : ControllerBase
     {
-        private readonly IBotFrameworkHttpAdapter _adapter;
-        private readonly string _appId;
-        private readonly IConversationReferenceService _conversationReferenceService;
-        private  List<ConversationReference> _conversationReferences;
+        private readonly INotificationsService _notificationsService;
 
-        public NotifyController(IBotFrameworkHttpAdapter adapter, IConfiguration configuration,  
-            IConversationReferenceService conversationReferenceService)
+        public NotifyController(INotificationsService notificationService)
         {
-            _adapter = adapter;
-            _appId = configuration["MicrosoftAppId"] ?? string.Empty;
-            _conversationReferenceService = conversationReferenceService;
+            _notificationsService = notificationService;   
+        }
+        [HttpPost("notifyUser")]
+        public async Task<IActionResult> SendNotification([FromBody] NotificationMessage notificationMessage)
+        {
+            await _notificationsService.SendNotification(notificationMessage);
+            return Ok("User has been notified.");
+        }
+        [HttpPost("bodcast")]
+        public async Task<IActionResult> SendBodcast([FromBody] NotificationMessage notificationMessage)
+        {
+            await _notificationsService.SendBodcast(notificationMessage);
+            return Ok("All Users has been notified.");
         }
 
-        public async Task<IActionResult> Get()
-        {
-            _conversationReferences = await _conversationReferenceService.GetAllConversationReferences();
-            foreach (var conversationReference in _conversationReferences)
-            {
-                await ((BotAdapter)_adapter).ContinueConversationAsync(_appId, conversationReference, BotCallback, default(CancellationToken));
-            }
-
-            // Let the caller know proactive messages have been sent
-            return new ContentResult()
-            {
-                Content = "<html><body><h1>Proactive messages have been sent.</h1></body></html>",
-                ContentType = "text/html",
-                StatusCode = (int)HttpStatusCode.OK,
-            };
-        }
-
-        private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            await turnContext.SendActivityAsync("proactive hello");
-        }
     }
 }

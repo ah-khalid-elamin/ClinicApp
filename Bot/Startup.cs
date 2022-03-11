@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
 using Microsoft.Bot.Schema;
 using Bot.Helpers.Conversations;
+using Bot.Helpers.Notifications;
 
 namespace Bot
 {
@@ -43,7 +44,7 @@ namespace Bot
             services.AddTransient<IBot, Bots.Bot>();
             services.AddTransient<IRequestResolver, RequestResolver>();
             services.AddTransient<IConversationReferenceService, ConversationReferenceService>();
-
+            services.AddTransient<INotificationsService, NotificationsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

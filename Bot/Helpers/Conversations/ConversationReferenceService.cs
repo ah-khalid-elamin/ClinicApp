@@ -5,6 +5,8 @@ using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.Bot.Builder.Teams;
 
 namespace Bot.Helpers.Conversations
 {
@@ -63,6 +65,11 @@ namespace Bot.Helpers.Conversations
         {
             return new ConversationReference()
             {
+                User = new ChannelAccount()
+                {
+                    Id = entity.UserId
+                },
+               
                 Conversation = new ConversationAccount()
                 {
                     Id = entity.ConversationId
@@ -74,6 +81,13 @@ namespace Bot.Helpers.Conversations
         {
             var entity = ConvertConversationReferanceForDB(reference, member);
             return DeleteAsync(entity);
+        }
+
+        public async Task<ConversationReference> GetConversationReferenceByUser(string userId)
+        {
+            List<ConversationReference> conversationReferences = await GetAllConversationReferences();
+            return conversationReferences.AsEnumerable()
+                        .Where(conversation => conversation?.User?.Id == userId).ToList().FirstOrDefault();
         }
     }
 }
