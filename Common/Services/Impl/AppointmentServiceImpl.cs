@@ -103,7 +103,7 @@ namespace Common.Services.Impl
 
             return true;
         }
-        private bool checkIsAvailableSlot(int doctorId,DateTime targetStart, DateTime targetEnd)
+        private bool checkIsAvailableSlot(string doctorId,DateTime targetStart, DateTime targetEnd)
         {
             List<Appointment> appointments = doctorService.GetAllDoctorAppointmentsByDay(doctorId,targetStart);
 

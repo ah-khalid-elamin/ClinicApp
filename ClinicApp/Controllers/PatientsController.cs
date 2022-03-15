@@ -46,13 +46,13 @@ namespace ClinicApp.Controllers
         // GET api/<PatientController>/5
         [Authorize(Roles ="Patient")]
         [HttpGet("{id}")]
-        public Patient Get(int id)
+        public Patient Get(string id)
         {
             return PatientService.GetPatient(id);
         }
 
         [HttpGet("{id}/previous-appointments")]
-        public IQueryable<Appointment> GetPreviousAppointments(int id)
+        public IQueryable<Appointment> GetPreviousAppointments(string id)
         {
             return PatientService.GetPatientPreviousAppointments(id)
                 .AsQueryable();
@@ -60,14 +60,14 @@ namespace ClinicApp.Controllers
 
         // PUT api/<PatientController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Patient patient)
+        public void Put(string id, [FromBody] Patient patient)
         {
             PatientService.Update(id,patient);
         }
 
         // DELETE api/<PatientController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(string id)
         {
             PatientService?.Delete(id);
         }

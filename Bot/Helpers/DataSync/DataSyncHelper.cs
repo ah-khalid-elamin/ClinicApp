@@ -22,7 +22,7 @@ namespace Bot.Helpers.DataSync
         public async Task<HttpClient> GetPatientClientAsync()
         {
             LoginModel loginModel = new LoginModel();
-            loginModel.Username = "patient0001";
+            loginModel.Email = "patient0001";
             loginModel.Password = "Patient0001@";
 
             return await GetHttpClientAsync(loginModel);
@@ -30,7 +30,7 @@ namespace Bot.Helpers.DataSync
         public async Task<HttpClient> GetDoctorClientAsync()
         {
             LoginModel loginModel = new LoginModel();
-            loginModel.Username = "doctor0001";
+            loginModel.Email = "doctor0001";
             loginModel.Password = "Doctor0001@";
 
             return await GetHttpClientAsync(loginModel);
@@ -39,7 +39,7 @@ namespace Bot.Helpers.DataSync
         public async Task<HttpClient> GetAdminClientAsync()
         {
             LoginModel loginModel = new LoginModel();
-            loginModel.Username = "Admin0001";
+            loginModel.Email = "Admin0001";
             loginModel.Password = "Admin0001@";
 
             return await GetHttpClientAsync(loginModel);
@@ -68,7 +68,7 @@ namespace Bot.Helpers.DataSync
             var doc = JsonConvert.DeserializeObject<List<Doctor>>(res);
             return doc;
         }
-        public async Task<List<Appointment>> queryDoctorAppointmentsById(int id)
+        public async Task<List<Appointment>> queryDoctorAppointmentsById(string id)
         {
             HttpClient client = await GetHttpClientAsync(null);
             var res = await client.GetStringAsync($"{URIHelpers.Appointments_Controller}?$filter=Doctor/id eq {id}");

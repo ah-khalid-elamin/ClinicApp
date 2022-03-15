@@ -19,7 +19,7 @@ namespace Common.Services.Impl
             return ClinicAppDbContext.Doctors
                 .ToList();
         }
-        public Doctor GetDoctor(int Id)
+        public Doctor GetDoctor(string Id)
         {
             return ClinicAppDbContext?.Doctors.ToList().FirstOrDefault(c => c.Id == Id);
         }
@@ -29,7 +29,7 @@ namespace Common.Services.Impl
             ClinicAppDbContext.SaveChanges();
             return doctor;
         }
-        public Doctor Update(int Id, Doctor doctor)
+        public Doctor Update(string Id, Doctor doctor)
         {
             Doctor existingDoctor = GetDoctor(Id);
             if (existingDoctor == null)
@@ -41,20 +41,20 @@ namespace Common.Services.Impl
             ClinicAppDbContext.SaveChanges();
             return doctor;
         }
-        public void Delete(int Id)
+        public void Delete(string Id)
         {
             Doctor doctor = GetDoctor(Id);
             ClinicAppDbContext.Doctors.Remove(doctor);
             ClinicAppDbContext.SaveChanges();
         }
 
-        public List<Appointment> GetAllDoctorAppointments(int id)
+        public List<Appointment> GetAllDoctorAppointments(string id)
         {
             return ClinicAppDbContext.Appointments.Include(a=>a.Doctor).AsNoTracking().Where(a => a.Doctor.Id == id)
                 .ToList();
         }
 
-        public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date)
+        public List<Appointment> GetAllDoctorAppointmentsByDay(string id, DateTime Date)
         {
             return ClinicAppDbContext.Appointments.Include(a => a.Doctor).AsNoTracking().AsEnumerable()
                 .Where(appointment => appointment?.Doctor?.Id == id &&
@@ -62,7 +62,7 @@ namespace Common.Services.Impl
                 .ToList();
         }
 
-        public bool IsAvailableforAnAppointmentByDate(int id, DateTime Date)
+        public bool IsAvailableforAnAppointmentByDate(string id, DateTime Date)
         {
             List<Appointment> appointments = GetAllDoctorAppointmentsByDay(id, Date);
 
@@ -122,7 +122,7 @@ namespace Common.Services.Impl
 
             return doctorsWhoExceedSixHours;
         }
-        public Double CalculateTotalDoctorHoursInADay(int doctorId, DateTime Date)
+        public Double CalculateTotalDoctorHoursInADay(string doctorId, DateTime Date)
         {
             List<Appointment> appointments = GetAllDoctorAppointmentsByDay(doctorId, Date);
             double totalWorkedHours = 0;
@@ -149,7 +149,7 @@ namespace Common.Services.Impl
             return result;
         }
 
-        public List<Slot> GetDoctorAvailableSlots(int id, DateTime date)
+        public List<Slot> GetDoctorAvailableSlots(string id, DateTime date)
         {
 
             List<Appointment> appointments = GetAllDoctorAppointmentsByDay(id, date).

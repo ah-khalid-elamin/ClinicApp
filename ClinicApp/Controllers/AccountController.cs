@@ -1,14 +1,17 @@
-﻿using Common.Models;
+﻿using Azure.Identity;
+using Common.Models;
 using Common.Services;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Linq;
 
 namespace ClinicApp.Controllers
 {
@@ -22,131 +25,232 @@ namespace ClinicApp.Controllers
         private readonly PatientService patientService;
         private readonly DoctorService doctorService;
 
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, 
+        public AccountController(//UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, 
             IConfiguration configuration,
             DoctorService doctorService,
             PatientService patientService)
         {
-            this.userManager = userManager;
-            this.roleManager = roleManager;
+            //this.userManager = userManager;
+            //this.roleManager = roleManager;
             this._configuration = configuration;
             this.doctorService = doctorService;
             this.patientService = patientService;
         }
 
+
+        private GraphServiceClient getGraphClient()
+        {
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
+
+            var tenantId = _configuration["AzureAd:TenantId"];
+            var clientId = _configuration["AzureAd:ClientId"];
+            var clientSecret = _configuration["AzureAd:ClientSecret"];
+
+            var options = new TokenCredentialOptions
+            {
+                AuthorityHost = AzureAuthorityHosts.AzurePublicCloud
+            };
+
+            // https://docs.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
+            var clientSecretCredential = new ClientSecretCredential(
+                tenantId, clientId, clientSecret, options);
+
+            var graphClient = new GraphServiceClient(clientSecretCredential, scopes);
+            return graphClient;
+        }
         [HttpPost]
         [Route("register-Doctor")]
         public async Task<IActionResult> RegisterDoctor([FromBody] DoctorRegister model)
         {
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, "User already exists!");
 
-            ApplicationUser user = new ApplicationUser()
+            try
             {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
+                var mailNickname = model.Email.Split("@")[0];
 
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, result);
+                var graphClient = getGraphClient();
 
-            //save Doctor
-            Doctor doctor = new Doctor()
-            {
-                Id = 0,
-                Name = model.Name,
-                BirthDate = model.BirthDate,
-                Speciality = model.Speciality
-            };
+                var user = new User
+                {
+                    AccountEnabled = true,
+                    DisplayName = model.Name,
+                    MailNickname = mailNickname,
+                    UserPrincipalName = model.Email,
+                    PasswordProfile = new PasswordProfile
+                    {
+                        ForceChangePasswordNextSignIn = true,
+                        Password = model.Password,
+                    }
+                };
 
-            doctorService.Save(doctor);
 
-            if (!await roleManager.RoleExistsAsync(UserRoles.Doctor))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Doctor));
+                //save in Credentials in AD
+                var created = await graphClient.Users
+                    .Request()
+                    .AddAsync(user);
 
-            if (await roleManager.RoleExistsAsync(UserRoles.Doctor))
-            {
-                await userManager.AddToRoleAsync(user, UserRoles.Doctor);
+                var RoleId = _configuration["AzureAd:DoctorRole"];
+                var ResourceId = _configuration["AzureAd:ClinicAppObjectId"];
+                var PrincipalId = created.Id;
+
+                //add Role Assignment
+                var appRoleAssignment = new AppRoleAssignment
+                {
+                    ResourceId = Guid.Parse(ResourceId), // resourceId
+                    AppRoleId = Guid.Parse(RoleId), // role
+                    PrincipalId = Guid.Parse(created.Id), //user or group
+
+                };
+
+                await graphClient.Users[created.Id].AppRoleAssignments
+                    .Request()
+                    .AddAsync(appRoleAssignment);
+
+
+                //save Doctor
+                Doctor doctor = new Doctor()
+                {
+                    Id = created.Id,
+                    Name = model.Name,
+                    BirthDate = model.BirthDate,
+                    Speciality = model.Speciality
+                };
+
+                doctorService.Save(doctor);
+
+
+                return Ok("User created successfully!");
             }
-
-            return Ok("User created successfully!");
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
         [Route("register-Patient")]
         public async Task<IActionResult> Register([FromBody] PatientRegister model)
         {
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return Ok(new Response<String>(StatusCodes.Status500InternalServerError, "User already Exists!"));
-            
-            ApplicationUser user = new ApplicationUser()
+
+            try
             {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
-            
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, result);
+                var mailNickname = model.Email.Split("@")[0];
 
-            //save Patient
-            Patient patient = new Patient()
-            {
-                Id = 0,
-                Name = model.Name,
-                BirthDate = model.BirthDate,
-                Gender = model.Gender
-            };
+                var graphClient = getGraphClient();
 
-            patientService.Save(patient);
+                var user = new User
+                {
+                    AccountEnabled = true,
+                    DisplayName = model.Name,
+                    MailNickname = mailNickname,
+                    UserPrincipalName = model.Email,
+                    PasswordProfile = new PasswordProfile
+                    {
+                        ForceChangePasswordNextSignIn = true,
+                        Password = model.Password,
+                    }
+                };
 
 
-            if (!await roleManager.RoleExistsAsync(UserRoles.Patient))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Patient));
+                //save in Credentials in AD
+                var created = await graphClient.Users
+                    .Request()
+                    .AddAsync(user);
 
-            if (await roleManager.RoleExistsAsync(UserRoles.Patient))
-            {
-                await userManager.AddToRoleAsync(user, UserRoles.Patient);
+                var RoleId = _configuration["AzureAd:PatientRole"];
+                var ResourceId = _configuration["AzureAd:ClinicAppObjectId"];
+                var PrincipalId = created.Id;
+
+                //add Role Assignment
+                var appRoleAssignment = new AppRoleAssignment
+                {
+                    ResourceId = Guid.Parse(ResourceId), // resourceId
+                    AppRoleId = Guid.Parse(RoleId), // role
+                    PrincipalId = Guid.Parse(created.Id), //user or group
+
+                };
+
+                await graphClient.Users[created.Id].AppRoleAssignments
+                    .Request()
+                    .AddAsync(appRoleAssignment);
+
+                //save Patient
+                Patient patient = new Patient()
+                {
+                    Id = created.Id,
+                    Name = model.Name,
+                    BirthDate = model.BirthDate,
+                    Gender = model.Gender
+                };
+
+                patientService.Save(patient);
+
+                return Ok("User created successfully!");
             }
-
-            return Ok("User created successfully!");
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
         [HttpPost]
         [Route("register-Admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, "User Already Exist");
-            ApplicationUser user = new ApplicationUser()
+            try
             {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username,
-            };
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, result);
-            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                var mailNickname = model.Email.Split("@")[0];
 
-            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-            {
-                await userManager.AddToRoleAsync(user, UserRoles.Admin);
+                var graphClient = getGraphClient();
+
+                var user = new User
+                {
+                    AccountEnabled = true,
+                    DisplayName = mailNickname,
+                    MailNickname = mailNickname,
+                    UserPrincipalName = model.Email,
+                    PasswordProfile = new PasswordProfile
+                    {
+                        ForceChangePasswordNextSignIn = true,
+                        Password = model.Password,
+                    }
+                };
+
+
+                //save in Credentials in AD
+                var created = await graphClient.Users
+                    .Request()
+                    .AddAsync(user);
+
+                var RoleId = _configuration["AzureAd:AdminRole"];
+                var ResourceId = _configuration["AzureAd:ClinicAppObjectId"];
+                var PrincipalId = created.Id;
+
+                //add Role Assignment
+                var appRoleAssignment = new AppRoleAssignment
+                {
+                    ResourceId = Guid.Parse(ResourceId), // resourceId
+                    AppRoleId = Guid.Parse(RoleId), // role
+                    PrincipalId = Guid.Parse(created.Id), //user or group
+
+                };
+
+                await graphClient.Users[created.Id].AppRoleAssignments
+                    .Request()
+                    .AddAsync(appRoleAssignment);
+
+                return Ok("User created successfully.");
+
             }
-            return Ok("User created successfully.");
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
         [AllowAnonymous]
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await userManager.FindByNameAsync(model.Username);
+            var user = await userManager.FindByNameAsync(model.Email);
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -174,9 +278,27 @@ namespace ClinicApp.Controllers
             }
             return Unauthorized(
                 "Please check your login credentials"
-                ) ;
+                );
         }
+        [HttpPost("Account-Info")]
+        public async Task<IActionResult> GetAccountInfo([FromQuery] string id)
+        {
+            try
+            {
+                var graphClient = getGraphClient();
+                var user = await graphClient.Users[id]
+                    .Request()
+                    .GetAsync();
 
+                return Ok(user);
+
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
 
     }
 }

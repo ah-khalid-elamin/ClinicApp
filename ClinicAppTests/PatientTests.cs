@@ -56,7 +56,7 @@ namespace ClinicAppTests
             //arrange
             Patient patient = new Patient()
             {
-                Id = 1,
+                Id = "",
                 Name = "Patient0",
                 BirthDate = DateTime.Now,
                 Gender = "Undefined"
@@ -93,7 +93,7 @@ namespace ClinicAppTests
 
             Patient patient = new Patient()
             {
-                Id = 1,
+                Id = "",
                 Name = "Patient0",
                 BirthDate = DateTime.Now,
                 Gender = "Undefined"

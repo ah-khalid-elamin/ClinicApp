@@ -6,16 +6,16 @@ namespace Common.Services
     public interface DoctorService
     {
         public List<Doctor> GetDoctors();
-        public Doctor GetDoctor(int Id);
+        public Doctor GetDoctor(string Id);
         public Doctor Save(Doctor doctor);
-        public Doctor Update(int Id, Doctor doctor);
-        public void Delete(int Id);
-        public List<Appointment> GetAllDoctorAppointments(int id);
-        public List<Appointment> GetAllDoctorAppointmentsByDay(int id, DateTime Date);
-        public bool IsAvailableforAnAppointmentByDate(int id, DateTime Date);
+        public Doctor Update(string Id, Doctor doctor);
+        public void Delete(string Id);
+        public List<Appointment> GetAllDoctorAppointments(string id);
+        public List<Appointment> GetAllDoctorAppointmentsByDay(string id, DateTime Date);
+        public bool IsAvailableforAnAppointmentByDate(string id, DateTime Date);
         public List<Doctor> GetDoctorsWithMostAppointmentsByDate(DateTime Date);
         public List<Doctor> GetDoctorsWithAppointmentsExceedingSixHoursByDate(DateTime Date);
-        public List<Slot> GetDoctorAvailableSlots(int id,DateTime date);
+        public List<Slot> GetDoctorAvailableSlots(string id,DateTime date);
         public List<String> ExportDoctorsToCsv();
     }
 }

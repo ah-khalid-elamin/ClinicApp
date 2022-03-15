@@ -53,7 +53,7 @@ namespace ClinicApp.Controllers
         // GET api/doctors/5
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin, Doctor, Patient")]
-        public Response<Doctor> GetDoctor(int id)
+        public Response<Doctor> GetDoctor(string id)
         {
             return new Response<Doctor>
                (
@@ -65,7 +65,7 @@ namespace ClinicApp.Controllers
         // GET api/doctors/5
         [HttpGet("{id}/slots")]
         [Authorize(Roles = "Admin, Doctor, Patient")]
-        public Response<List<Slot>> GetDoctor(int id, [FromQuery] DateTime date)
+        public Response<List<Slot>> GetDoctor(string id, [FromQuery] DateTime date)
         {
             return new Response<List<Slot>>
                (
@@ -93,7 +93,7 @@ namespace ClinicApp.Controllers
         [Authorize(Roles = "Doctor")]
         [HttpGet("{id}/appointments-list")]
         [EnableQuery]
-        public IQueryable<Appointment> GetDoctorAppointments(int id, [FromQuery] Pagination pagination)
+        public IQueryable<Appointment> GetDoctorAppointments(string id, [FromQuery] Pagination pagination)
         {
             return DoctorService.GetAllDoctorAppointments(id)
                 .AsQueryable();
@@ -101,7 +101,7 @@ namespace ClinicApp.Controllers
 
         // PUT api/<DoctorController>/5
         [HttpPut("{id}")]
-        public Response<Doctor> Put(int id, [FromBody] Doctor doctor)
+        public Response<Doctor> Put(string id, [FromBody] Doctor doctor)
         {
             return new Response<Doctor>
               (
@@ -112,7 +112,7 @@ namespace ClinicApp.Controllers
 
         // DELETE api/<DoctorController>/5
         [HttpDelete("{id}")]
-        public Response<String> Delete(int id)
+        public Response<String> Delete(string id)
         {
             DoctorService.Delete(id);
 

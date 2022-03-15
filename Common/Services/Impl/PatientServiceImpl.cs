@@ -16,7 +16,7 @@ namespace Common.Services.Impl
         {
             return ClinicAppDbContext.Patients.ToList();
         }
-        public Patient GetPatient(int Id)
+        public Patient GetPatient(string Id)
         {
             return ClinicAppDbContext.Patients.ToList().FirstOrDefault(c => c.Id == Id);
         }
@@ -26,7 +26,7 @@ namespace Common.Services.Impl
             ClinicAppDbContext.SaveChanges();
             return patient;
         }
-        public Patient Update(int id, Patient patient)
+        public Patient Update(string id, Patient patient)
         {
             Patient _existingPatient = GetPatient(id);
             if (_existingPatient != null)
@@ -43,14 +43,14 @@ namespace Common.Services.Impl
 
             return patient;
         }
-        public void Delete(int Id)
+        public void Delete(string Id)
         {
             Patient patient = GetPatient(Id);
             ClinicAppDbContext.Patients.Remove(patient);
             ClinicAppDbContext.SaveChanges();
         }
 
-        public List<Appointment> GetPatientPreviousAppointments(int patientId)
+        public List<Appointment> GetPatientPreviousAppointments(string patientId)
         {
            return ClinicAppDbContext.Appointments.Include(a => a.Patient).AsNoTracking().AsEnumerable()
                 .Where(appointment => appointment?.Patient?.Id == patientId)
