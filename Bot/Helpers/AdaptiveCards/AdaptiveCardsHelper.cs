@@ -1,4 +1,5 @@
 ﻿using AdaptiveCards;
+using Bot.Helpers.Card;
 using Common.Models;
 using Microsoft.Bot.Schema;
 using System.Collections.Generic;
@@ -378,7 +379,67 @@ namespace Bot.Helpers.AdaptiveCards
             };
 
         }
+        public static Attachment GetSignUpCard(ChannelAccount user)
+        {
+            AdaptiveCard card = new("1.2");
+            card.Body.Add(new AdaptiveTextBlock
+            {
+                Text = $"Hi, {user.Name}!",
+                Wrap = false,
+                Spacing = AdaptiveSpacing.Large,
+                Size = AdaptiveTextSize.Default,
+                Height = AdaptiveHeight.Stretch,
+                FontType = AdaptiveFontType.Default,
+                Weight = AdaptiveTextWeight.Default,
+                Color = AdaptiveTextColor.Default,
+                HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+            });
 
+            var text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries";
+            
+            card.Body.Add(new AdaptiveTextBlock
+            {
+                Text = text,
+                Wrap = false,
+                Spacing = AdaptiveSpacing.Large,
+                Size = AdaptiveTextSize.Default,
+                Height = AdaptiveHeight.Stretch,
+                FontType = AdaptiveFontType.Default,
+                Weight = AdaptiveTextWeight.Default,
+                Color = AdaptiveTextColor.Default,
+                HorizontalAlignment = AdaptiveHorizontalAlignment.Center,
+            });
+
+            card.Body.Add(new AdaptiveTextInput()
+            {
+                Id = "Department",
+                Placeholder = "Department"
+            });
+
+            card.Body.Add(new AdaptiveTextInput()
+            {
+                Id = "AlternativeEmail",
+                Placeholder = "Alternative Email"
+            });
+
+            
+            card.Actions.Add(new AdaptiveSubmitAction()
+            {
+                Id = "SignUpSubmit",
+                Title = "submit",
+                Data = new SignUpCardPayload()
+                {
+                    User = user
+                },
+
+            });
+
+            return new Attachment
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = card,
+            };
+        }
 
 
     }

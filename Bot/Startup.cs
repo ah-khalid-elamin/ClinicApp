@@ -16,6 +16,8 @@ using System.Collections.Concurrent;
 using Microsoft.Bot.Schema;
 using Bot.Helpers.Conversations;
 using Bot.Helpers.Notifications;
+using Bot.Helpers.Card;
+using Bot.Helpers.Mail;
 
 namespace Bot
 {
@@ -40,11 +42,17 @@ namespace Bot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
             services.AddSingleton<ConcurrentDictionary<string, ConversationReference>>();
 
+
+            services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+
+
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, Bots.Bot>();
             services.AddTransient<IRequestResolver, RequestResolver>();
             services.AddTransient<IConversationReferenceService, ConversationReferenceService>();
             services.AddTransient<INotificationsService, NotificationsService>();
+            services.AddTransient<ICardService, CardService>();
+            services.AddTransient<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

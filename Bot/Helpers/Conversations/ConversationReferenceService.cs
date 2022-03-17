@@ -67,7 +67,9 @@ namespace Bot.Helpers.Conversations
             {
                 User = new ChannelAccount()
                 {
-                    Id = entity.UserId
+                    Id = entity.UserId,
+                    Name = entity.Name,
+                    AadObjectId = entity.AadObjectId
                 },
                
                 Conversation = new ConversationAccount()
@@ -88,6 +90,15 @@ namespace Bot.Helpers.Conversations
             List<ConversationReference> conversationReferences = await GetAllConversationReferences();
             return conversationReferences.AsEnumerable()
                         .Where(conversation => conversation?.User?.Id == userId).ToList().FirstOrDefault();
+        }
+        public async Task<ConversationReference> GetConversationReferenceByADUserId(string AadObjectId)
+        {
+            var entites = await GetAllAsync();
+            var entity =  entites.AsEnumerable().Where(e => e.AadObjectId == AadObjectId)
+                .ToList().FirstOrDefault();
+
+            return GetConversationReferenceFromEntity(entity);
+          
         }
     }
 }

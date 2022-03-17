@@ -33,7 +33,7 @@ namespace Bot.Helpers.Notifications
 
         public async Task SendNotification(NotificationMessage notification)
         {
-            var conversationReference = await _conversationReferenceService.GetConversationReferenceByUser(notification.UserId);
+            var conversationReference = await _conversationReferenceService.GetConversationReferenceByADUserId(notification.UserId);
             await ((BotAdapter)_adapter).ContinueConversationAsync(_appId, conversationReference,
                    async (context, token) => await SendMessage(context, notification.Message, token),
                    default(CancellationToken));
