@@ -133,6 +133,7 @@ namespace ClinicAppTests
             Assert.AreEqual("Doctor is missing", exception.ParamName);
 
         }
+        [Test]
         public void InvalidAppointmentNoPatient()
         {
             //arrange 
@@ -152,6 +153,11 @@ namespace ClinicAppTests
 
             Assert.AreEqual("Patient is missing", exception.ParamName);
 
+        }
+        [Test]
+        public void BreakingTheBuildTest()
+        {
+            Assert.Fail();
         }
 
 
