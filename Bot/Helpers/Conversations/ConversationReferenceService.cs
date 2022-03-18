@@ -100,5 +100,15 @@ namespace Bot.Helpers.Conversations
             return GetConversationReferenceFromEntity(entity);
           
         }
+
+        public async Task<ConversationReferenceEntity> GetConversationReferenceByEmail(string email)
+        {
+            var entites = await GetAllAsync();
+            var entity = entites.AsEnumerable().Where(e => e.RowKey == email)
+                .ToList().FirstOrDefault();
+
+            return entity;
+
+        }
     }
 }

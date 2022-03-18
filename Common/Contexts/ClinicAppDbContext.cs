@@ -13,5 +13,6 @@ namespace Common.Contexts
         public virtual DbSet<Appointment> Appointments { get; set; } = null!;
         public virtual DbSet<Doctor> Doctors { get; set; } = null!;
         public virtual DbSet<Patient> Patients { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
     }
 }

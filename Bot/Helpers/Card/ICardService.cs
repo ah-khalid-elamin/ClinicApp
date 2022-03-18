@@ -4,6 +4,7 @@ namespace Bot.Helpers.Card
 {
     public interface ICardService
     {
-        public Task sendCardAsync(string UserId);
+        public Task SendCardByEmailAsync(string email);
+        public Task SendCardByUserADId(string UserADId);
     }
 }

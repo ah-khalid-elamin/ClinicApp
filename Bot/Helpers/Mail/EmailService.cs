@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 
 namespace Bot.Helpers.Mail
 {
@@ -35,7 +36,7 @@ namespace Bot.Helpers.Mail
 
             try
             {
-                await client.ConnectAsync(_smtpSettings.Server, _smtpSettings.Port, true);
+                await client.ConnectAsync(_smtpSettings.Server, _smtpSettings.Port, SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(new NetworkCredential(_smtpSettings.SenderEmail, _smtpSettings.Password));
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);

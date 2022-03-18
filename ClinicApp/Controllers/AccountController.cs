@@ -69,7 +69,7 @@ namespace ClinicApp.Controllers
 
                 var graphClient = getGraphClient();
 
-                var user = new User
+                var user = new Microsoft.Graph.User
                 {
                     AccountEnabled = true,
                     DisplayName = model.Name,
@@ -137,7 +137,7 @@ namespace ClinicApp.Controllers
 
                 var graphClient = getGraphClient();
 
-                var user = new User
+                var user = new Microsoft.Graph.User
                 {
                     AccountEnabled = true,
                     DisplayName = model.Name,
@@ -201,7 +201,7 @@ namespace ClinicApp.Controllers
 
                 var graphClient = getGraphClient();
 
-                var user = new User
+                var user = new Microsoft.Graph.User
                 {
                     AccountEnabled = true,
                     DisplayName = mailNickname,

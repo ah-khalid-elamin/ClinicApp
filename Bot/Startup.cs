@@ -18,6 +18,12 @@ using Bot.Helpers.Conversations;
 using Bot.Helpers.Notifications;
 using Bot.Helpers.Card;
 using Bot.Helpers.Mail;
+using Common.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Common.Services;
+using Common.Services.Impl;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 namespace Bot
 {
@@ -44,6 +50,10 @@ namespace Bot
 
 
             services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+            
+            // Add Database context
+            services.AddDbContext<ClinicAppDbContext>(opt =>
+            opt.UseSqlServer(Configuration.GetConnectionString("ClinicApp")));
 
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
@@ -53,6 +63,11 @@ namespace Bot
             services.AddTransient<INotificationsService, NotificationsService>();
             services.AddTransient<ICardService, CardService>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<IUserService, UserService>();
+
+            // Adding Authentication
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +82,7 @@ namespace Bot
                 .UseStaticFiles()
                 .UseWebSockets()
                 .UseRouting()
+                .UseAuthentication()
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {

@@ -7,6 +7,8 @@ using Bot.Helpers.Card;
 using Bot.Helpers.Conversations;
 using Bot.Helpers.Mail;
 using Bot.Helpers.RequestResolver;
+using Common.Models;
+using Common.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
@@ -23,16 +25,18 @@ namespace Bot.Bots
         private readonly IRequestResolver RequestResovler;
         private readonly IConversationReferenceService ConversationReferenceService;
         private readonly IEmailService EmailService;
+        private readonly IUserService UserService;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
         public Bot(IRequestResolver requestResolver, ConcurrentDictionary<string, 
             ConversationReference> conconversationReferences,
             IConversationReferenceService conversationReferenceService,
-            IEmailService emailService)
+            IEmailService emailService, IUserService userService)
         {
             RequestResovler = requestResolver;
             ConversationReferences = conconversationReferences;
             ConversationReferenceService = conversationReferenceService;
             EmailService = emailService;
+            UserService = userService;
         }
         protected override Task<AdaptiveCardInvokeResponse> OnAdaptiveCardInvokeAsync(ITurnContext<IInvokeActivity> turnContext, AdaptiveCardInvokeValue invokeValue, CancellationToken cancellationToken)
         {
@@ -50,10 +54,22 @@ namespace Bot.Bots
 
 
                 string replyMessage = $"Hi {payload.User.Name} from {payload.Department}. Thank you for signing up.";
-                
+
+                //saving user
+                var user = new User()
+                {
+                    AlternativeEmail = payload.AlternativeEmail,
+                    DepartmentName = payload.Department,
+                    Id = payload.User.AadObjectId
+                };
+                UserService.Save(user);
+
+
+                //sending email
                 await EmailService.SendEmail(payload.AlternativeEmail, "Welcoming a user", replyMessage);
 
-                await turnContext.SendActivityAsync(MessageFactory.Text(replyMessage), cancellationToken);
+                
+
 
             } else if (turnContext.Activity.Text != null) //message
             {

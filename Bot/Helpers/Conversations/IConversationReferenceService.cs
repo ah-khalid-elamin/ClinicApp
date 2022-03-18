@@ -12,6 +12,7 @@ namespace Bot.Helpers.Conversations
         Task<ConversationReference> GetConversationReferenceByUser(string userId);
         Task<ConversationReference> GetConversationReferenceByADUserId(string AadObjectId);
         Task<ConversationReferenceEntity> GetConversationReference(string conversationId);
+        Task<ConversationReferenceEntity> GetConversationReferenceByEmail(string email);
         Task AddOrUpdateConversationReference(ConversationReference reference, TeamsChannelAccount member);
         Task RemoveConversationReference(ConversationReference reference, TeamsChannelAccount member);
     }
