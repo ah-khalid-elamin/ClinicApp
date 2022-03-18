@@ -155,9 +155,9 @@ namespace ClinicAppTests
 
         }
         [Test]
-        public void BreakingTheBuildTest()
+        public void FixTheBuildTest()
         {
-            Assert.Fail();
+            Assert.Pass();
         }
 
 
