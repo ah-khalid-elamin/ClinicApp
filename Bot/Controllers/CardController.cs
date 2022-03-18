@@ -32,14 +32,13 @@ namespace Bot.Controllers
         public CardController(ICardService cardService, IEmailService emailService,
             IUserService userService, IConversationReferenceService conversationReferenceService)
         {
-            _cardService = cardService;   
-            _emailService = emailService;   
+            _cardService = cardService;
+            _emailService = emailService;
             _userService = userService;
-            _conversationReferenceService = conversationReferenceService;
         }
-        [Authorize]
+    [Authorize]
         [HttpPost("send-card")]
-        public async Task SendCardAsync()
+        public async Task<ActionResult> SendCardAsync()
         {
             try
             {
@@ -47,18 +46,31 @@ namespace Bot.Controllers
                 .FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
 
                 await _cardService.SendCardByUserADId(userid);
-
             }
             catch (Exception e)
             {
                 await Task.FromResult(e);
             }
+            return Ok("Card has been sent to the user.");
+
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("save-user")]
-        public ActionResult SaveInfo([FromBody] User user)
+        public async Task<ActionResult> SaveAndSendEmail([FromBody] User user)
         {
-            _userService.Save(user);
-             return Ok("User information saved successfully.");
+            try
+            {
+                var userid = Request.HttpContext.User.Claims.ToList()
+                .FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+
+                await _cardService.SaveAndSendEmail(userid, user);
+            }
+            catch (Exception e)
+            {
+                await Task.FromResult(e);
+            }
+            return Ok("User information saved successfully.");
+
         }
         [Authorize(Roles = "Admin")]
         [HttpGet("get-users")]

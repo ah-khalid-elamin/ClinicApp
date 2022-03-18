@@ -1,5 +1,8 @@
 ﻿using Bot.Helpers.AdaptiveCards;
 using Bot.Helpers.Conversations;
+using Bot.Helpers.Mail;
+using Common.Models;
+using Common.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.Teams;
@@ -15,13 +18,38 @@ namespace Bot.Helpers.Card
         private readonly IBotFrameworkHttpAdapter _adapter;
         private readonly string _appId;
         private readonly IConversationReferenceService _conversationReferenceService;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
 
-        public CardService(IBotFrameworkHttpAdapter adapter, IConfiguration configuration, IConversationReferenceService conversationReferenceService)
+        public CardService(IBotFrameworkHttpAdapter adapter, IConfiguration configuration, 
+            IConversationReferenceService conversationReferenceService,
+            IEmailService emailService, IUserService userService)
         {
             _adapter = adapter;
             _appId = configuration["MicrosoftAppId"] ?? string.Empty;
             _conversationReferenceService = conversationReferenceService;
+            _emailService = emailService;
+            _userService = userService;
         }
+
+        public async Task SaveAndSendEmail(string userADId, User user)
+        {
+            var entity = new User()
+            {
+                Id = userADId,
+                AlternativeEmail = user.AlternativeEmail,
+                DepartmentName = user.DepartmentName
+            };
+
+            _userService.Save(entity);
+            var convRef = await _conversationReferenceService.GetConversationReferenceByADUserId(userADId);
+            var userName = convRef.User.Name;    
+
+            string replyMessage = $"Hi {userName} from {entity.DepartmentName}. Thank you for signing up.";
+            
+            await _emailService.SendEmail(user.AlternativeEmail, "Welcome", replyMessage);
+        }
+
         public async Task SendCardByEmailAsync(string email)
         {
             var conRefEntity = await _conversationReferenceService.GetConversationReferenceByEmail(email);

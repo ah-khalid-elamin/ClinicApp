@@ -2,6 +2,7 @@
 {
     public class URIHelpers
     {
+        public static string Token { get; set; }
         public static string Base_URI = "https://openclinic.azurewebsites.net";
         public static string Doctors_Controller = $"{Base_URI}/api/doctors";
         public static string Patients_Controller = $"{Base_URI}/api/patients";

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Common.Models;
+using System.Threading.Tasks;
 
 namespace Bot.Helpers.Card
 {
@@ -6,5 +7,6 @@ namespace Bot.Helpers.Card
     {
         public Task SendCardByEmailAsync(string email);
         public Task SendCardByUserADId(string UserADId);
+        public Task SaveAndSendEmail(string userADId, User user);
     }
 }

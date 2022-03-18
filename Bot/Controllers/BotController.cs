@@ -3,6 +3,8 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.15.0
 
+using Bot.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -26,12 +28,13 @@ namespace Bot.Controllers
             Adapter = adapter;
             Bot = bot;
         }
-
         [HttpPost, HttpGet]
         public async Task PostAsync()
         {
             // Delegate the processing of the HTTP POST to the adapter.
             // The adapter will invoke the bot.
+            var token = HttpContext.Request.Headers.Authorization;
+            URIHelpers.Token = token;
             await Adapter.ProcessAsync(Request, Response, Bot);
         }
 
