@@ -413,13 +413,17 @@ namespace Bot.Helpers.AdaptiveCards
             card.Body.Add(new AdaptiveTextInput()
             {
                 Id = "Department",
-                Placeholder = "Department"
+                Placeholder = "Department",
+                IsRequired = true,
+                ErrorMessage = "Department Field is Required."
             });
 
             card.Body.Add(new AdaptiveTextInput()
             {
                 Id = "AlternativeEmail",
-                Placeholder = "Alternative Email"
+                Placeholder = "Alternative Email",
+                IsRequired = true,
+                ErrorMessage = "Alternative Email Field is Required."
             });
 
             
