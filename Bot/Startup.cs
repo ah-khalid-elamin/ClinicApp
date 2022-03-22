@@ -24,6 +24,8 @@ using Common.Services;
 using Common.Services.Impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.AzureAppServices;
 
 namespace Bot
 {
@@ -48,9 +50,22 @@ namespace Bot
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
             services.AddSingleton<ConcurrentDictionary<string, ConversationReference>>();
 
-
             services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
-            
+
+            services.AddLogging(options =>
+            {
+                options.ClearProviders();
+                options.AddConsole();
+                options.AddEventLog();
+                options.AddAzureWebAppDiagnostics();
+            });
+
+            services.Configure<AzureFileLoggerOptions>(options =>
+            {
+                options.FileName = "azure-diagnostics-";
+                options.FileSizeLimit = 50 * 1024;
+                options.RetainedFileCountLimit = 5;
+            });
             // Add Database context
             services.AddDbContext<ClinicAppDbContext>(opt =>
             opt.UseSqlServer(Configuration.GetConnectionString("ClinicApp")));
@@ -67,7 +82,10 @@ namespace Bot
 
             // Adding Authentication
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+                    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"))
+                    .EnableTokenAcquisitionToCallDownstreamApi()
+                    .AddInMemoryTokenCaches();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -77,7 +95,7 @@ namespace Bot
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseDefaultFiles()
                 .UseStaticFiles()
                 .UseWebSockets()

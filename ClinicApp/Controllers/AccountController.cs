@@ -75,6 +75,7 @@ namespace ClinicApp.Controllers
                     DisplayName = model.Name,
                     MailNickname = mailNickname,
                     UserPrincipalName = model.Email,
+                    UsageLocation = "AE",
                     PasswordProfile = new PasswordProfile
                     {
                         ForceChangePasswordNextSignIn = true,
@@ -105,6 +106,22 @@ namespace ClinicApp.Controllers
                     .Request()
                     .AddAsync(appRoleAssignment);
 
+                //add Microsoft 365 License
+                var microsoft365LicenseId = _configuration["Licenses:Microsoft365"];
+                var addLicenses = new List<AssignedLicense>()
+                {
+                    new AssignedLicense
+                    {
+                        SkuId = Guid.Parse(microsoft365LicenseId)
+                    }
+                };
+
+                var removeLicenses = new List<Guid>();
+
+                await graphClient.Users[created.Id]
+                    .AssignLicense(addLicenses, removeLicenses)
+                    .Request()
+                    .PostAsync();
 
                 //save Doctor
                 Doctor doctor = new Doctor()
@@ -143,6 +160,7 @@ namespace ClinicApp.Controllers
                     DisplayName = model.Name,
                     MailNickname = mailNickname,
                     UserPrincipalName = model.Email,
+                    UsageLocation = "AE",
                     PasswordProfile = new PasswordProfile
                     {
                         ForceChangePasswordNextSignIn = true,
@@ -172,6 +190,23 @@ namespace ClinicApp.Controllers
                 await graphClient.Users[created.Id].AppRoleAssignments
                     .Request()
                     .AddAsync(appRoleAssignment);
+
+                //add Microsoft 365 License
+                var microsoft365LicenseId = _configuration["Licenses:Microsoft365"];
+                var addLicenses = new List<AssignedLicense>()
+                {
+                    new AssignedLicense
+                    {
+                        SkuId = Guid.Parse(microsoft365LicenseId)
+                    }
+                };
+
+                var removeLicenses = new List<Guid>();
+
+                await graphClient.Users[created.Id]
+                    .AssignLicense(addLicenses, removeLicenses)
+                    .Request()
+                    .PostAsync();
 
                 //save Patient
                 Patient patient = new Patient()
@@ -207,6 +242,7 @@ namespace ClinicApp.Controllers
                     DisplayName = mailNickname,
                     MailNickname = mailNickname,
                     UserPrincipalName = model.Email,
+                    UsageLocation = "AE",
                     PasswordProfile = new PasswordProfile
                     {
                         ForceChangePasswordNextSignIn = true,
@@ -236,6 +272,23 @@ namespace ClinicApp.Controllers
                 await graphClient.Users[created.Id].AppRoleAssignments
                     .Request()
                     .AddAsync(appRoleAssignment);
+
+                //add Microsoft 365 License
+                var microsoft365LicenseId = _configuration["Licenses:Microsoft365"];
+                var addLicenses = new List<AssignedLicense>()
+                {
+                    new AssignedLicense
+                    {
+                        SkuId = Guid.Parse(microsoft365LicenseId)
+                    }
+                };
+
+                var removeLicenses = new List<Guid>();
+
+                await graphClient.Users[created.Id]
+                    .AssignLicense(addLicenses, removeLicenses)
+                    .Request()
+                    .PostAsync();
 
                 return Ok("User created successfully.");
 

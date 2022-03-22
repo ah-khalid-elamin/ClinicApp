@@ -444,7 +444,28 @@ namespace Bot.Helpers.AdaptiveCards
                 Content = card,
             };
         }
+        public static Attachment GetWelcomeCard(ChannelAccount user)
+        {
+            AdaptiveCard card = new("1.2");
 
+            card.Body.Add(new AdaptiveTextBlock()
+            {
+                Text = $"Welcome {user.Name}, To our clinic bot.",
+                Wrap = false,
+                Spacing = AdaptiveSpacing.None,
+                Size = AdaptiveTextSize.Default,
+                Height = AdaptiveHeight.Stretch,
+                FontType = AdaptiveFontType.Default,
+                Weight = AdaptiveTextWeight.Default,
+                Color = AdaptiveTextColor.Default
+            });
+
+            return new Attachment
+            {
+                ContentType = AdaptiveCard.ContentType,
+                Content = card,
+            };
+        }
 
     }
 }

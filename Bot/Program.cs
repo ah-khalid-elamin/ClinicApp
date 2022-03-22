@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Bot
 {
@@ -21,5 +22,6 @@ namespace Bot
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+            
     }
 }

@@ -79,10 +79,10 @@ namespace Bot.Helpers.Conversations
                 ServiceUrl = entity.ServiceUrl,
             };
         }
-        public  Task RemoveConversationReference(ConversationReference reference, TeamsChannelAccount member)
+        public async Task RemoveConversationReference(ConversationReference reference, TeamsChannelAccount member)
         {
             var entity = ConvertConversationReferanceForDB(reference, member);
-            return DeleteAsync(entity);
+            await DeleteAsync(entity);
         }
 
         public async Task<ConversationReference> GetConversationReferenceByUser(string userId)

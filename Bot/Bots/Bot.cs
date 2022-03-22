@@ -3,6 +3,7 @@
 //
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.15.0
 
+using Bot.Helpers.AdaptiveCards;
 using Bot.Helpers.Card;
 using Bot.Helpers.Conversations;
 using Bot.Helpers.Mail;
@@ -12,6 +13,7 @@ using Common.Services;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -26,17 +28,20 @@ namespace Bot.Bots
         private readonly IConversationReferenceService ConversationReferenceService;
         private readonly IEmailService EmailService;
         private readonly IUserService UserService;
+        private readonly ILogger<Bot> Logger;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
         public Bot(IRequestResolver requestResolver, ConcurrentDictionary<string, 
             ConversationReference> conconversationReferences,
             IConversationReferenceService conversationReferenceService,
-            IEmailService emailService, IUserService userService)
+            IEmailService emailService, IUserService userService,
+            ILogger<Bot> logger)
         {
             RequestResovler = requestResolver;
             ConversationReferences = conconversationReferences;
             ConversationReferenceService = conversationReferenceService;
             EmailService = emailService;
             UserService = userService;
+            Logger = logger;
         }
         protected override Task<AdaptiveCardInvokeResponse> OnAdaptiveCardInvokeAsync(ITurnContext<IInvokeActivity> turnContext, AdaptiveCardInvokeValue invokeValue, CancellationToken cancellationToken)
         {
@@ -91,9 +96,6 @@ namespace Bot.Bots
             ConversationReference botConRef = turnContext.Activity.GetConversationReference();
             var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
             await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
-
-            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to our Clinic bot!"), cancellationToken);
-
         }
         protected override async Task OnInstallationUpdateActivityAsync(ITurnContext<IInstallationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -101,11 +103,22 @@ namespace Bot.Bots
             ConversationReference botConRef = turnContext.Activity.GetConversationReference();
             var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
 
+            //save the conversation reference
             await ConversationReferenceService.AddOrUpdateConversationReference(botConRef, currentMember);
             
-            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to our Clinic bot!"), cancellationToken);
+            //sending welcome card to the user.
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(AdaptiveCardsHelper.GetWelcomeCard(currentMember)), 
+                cancellationToken);
 
 
+
+        }
+        protected override async Task OnInstallationUpdateRemoveAsync(ITurnContext<IInstallationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            Logger.LogInformation("Calling OnInstallationUpdateRemoveAsync");
+            ConversationReference botConRef = turnContext.Activity.GetConversationReference();
+            var currentMember = await TeamsInfo.GetMemberAsync(turnContext, turnContext.Activity.From.Id, cancellationToken);
+            await ConversationReferenceService.RemoveConversationReference(botConRef, currentMember);
         }
     }
 }

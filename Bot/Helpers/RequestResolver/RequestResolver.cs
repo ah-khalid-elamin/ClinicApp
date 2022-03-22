@@ -5,6 +5,8 @@ using Common.Services;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +24,9 @@ namespace Bot.Helpers.RequestResolver
         private readonly AppointmentService AppointmentService;
         private readonly IConfiguration Configuration;
 
-        public RequestResolver(IConfiguration _configuration)
-        {
+        public RequestResolver(IConfiguration _configuration, ILogger<DataSyncHelper> _DataSyncLogger,
+            ITokenAcquisition tokenAcquisition) : base(_DataSyncLogger, tokenAcquisition)
+        { 
             this.Configuration = _configuration;
         }
 

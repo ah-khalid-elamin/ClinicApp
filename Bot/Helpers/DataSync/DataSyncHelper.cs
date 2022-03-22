@@ -1,6 +1,9 @@
 ﻿using Common.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -11,17 +14,26 @@ namespace Bot.Helpers.DataSync
 {
     public class DataSyncHelper
     {
+        private readonly ILogger<DataSyncHelper> _logger;
+        private readonly ITokenAcquisition _tokenAcquisition;
 
+
+        public DataSyncHelper(ILogger<DataSyncHelper> logger, ITokenAcquisition tokenAcquisition)
+        {
+            _logger = logger;
+            _tokenAcquisition = tokenAcquisition;
+        }
         public async Task<HttpClient> GetHttpClientAsync()
         {
             HttpClient client = new HttpClient();
-            string token =  GetTokenAsync();
-            client.DefaultRequestHeaders.Add("Authorization", token);
+            string token = await GetTokenAsync();
             return client;
         }
-        private string GetTokenAsync()
+        private async Task<string> GetTokenAsync()
         {
-            return URIHelpers.Token;
+            string[] scopesToAccessDownstreamApi = new string[] { "api://fd3d3dd9-80dd-4a82-8c3b-3c4dfca593b0/ReadAccess" };
+            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopesToAccessDownstreamApi);
+            return token;
         }
         public async Task<List<Doctor>> queryDoctors()
         {

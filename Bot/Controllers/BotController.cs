@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Bot.Controllers
@@ -22,11 +23,13 @@ namespace Bot.Controllers
     {
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly IBot Bot;
+        private readonly ILogger<BotController> _logger;
 
-        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
+        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot, ILogger<BotController> logger)
         {
             Adapter = adapter;
             Bot = bot;
+            _logger = logger;
         }
         [HttpPost, HttpGet]
         public async Task PostAsync()
@@ -35,6 +38,8 @@ namespace Bot.Controllers
             // The adapter will invoke the bot.
             var token = HttpContext.Request.Headers.Authorization;
             URIHelpers.Token = token;
+
+            _logger.LogInformation($"access-token: {token}");
             await Adapter.ProcessAsync(Request, Response, Bot);
         }
 
